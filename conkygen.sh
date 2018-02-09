@@ -128,252 +128,297 @@ fi
 # WELCOME MESSAGE ---------------------------------------------------------------------
 
 echo ""
-echo "Welcome to ConkyMatic Version ${VERSION}"
-
-
-# WEATHER ICON COLOR --------------------------------------------------------------------
+echo "--------------------------------------------------------------------"
+echo "           Welcome to ConkyMatic Version ${VERSION}"
+echo "--------------------------------------------------------------------"
 
 echo ""
-echo "Enter the WEATHER ICON color value (in hex) or hit ENTER to apply default color:"
-read R_COLOR_ICON
+echo "Please select MODE:"
+echo "1) Automatic. The colors will be auto-selected from the wallpaper colors."
+echo "2) Manual. You will be prompted to enter each color hex value."
+read MODE
 
-if [[ ${R_COLOR_ICON} != "" ]]; then
-
-    # Did they submit a valid HEX value?
-    if ! [[ $R_COLOR_ICON =~ ^[\#a-fA-F0-9]+$ ]]; then 
-        echo "The color you entered does not appear to be valid. Aborting..."
-        echo ""
-        exit 1
-    fi
-
-    # Add the # character if they omitted it from the hex color
-    if [[ ${R_COLOR_ICON:0:1} != "#" ]]; then
-        R_COLOR_ICON="#${R_COLOR_ICON}"
-    fi
-
-    # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${#R_COLOR_ICON} -ne 7 ]]; then
-        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-        echo ""
-        exit 1
-    fi
-
-    COLOR_ICON="${R_COLOR_ICON}"
+# Validate mode. 
+if [[ ${MODE} -ne 1 && ${MODE} -ne 2 ]]; then
+    echo ""
+    echo "Invalid mode. Aborting..."
+    echo ""
+    exit 1
 fi
 
 
-# PRIMARY TEXT COLOR ---------------------------------------------------------------------
+# Manual mode
+if [[ ${MODE} -eq 2 ]]; then
 
-echo ""
-echo "Enter the PRIMARY text color value (in hex) or hit ENTER to apply default color:"
-read R_COLOR_PRIMARY
+    # WEATHER ICON COLOR --------------------------------------------------------------------
 
-if [[ ${R_COLOR_PRIMARY} != "" ]]; then
+    echo ""
+    echo "Enter the WEATHER ICON color value (in hex)"
+    echo "Or hit ENTER to apply default color ${COLOR_ICON}:"
+    read R_COLOR_ICON
 
-    # Did they submit a valid HEX value?
-    if ! [[ $R_COLOR_PRIMARY =~ ^[\#a-fA-F0-9]+$ ]]; then 
-        echo "The color you entered does not appear to be valid. Aborting..."
-        echo ""
-        exit 1
+    if [[ ${R_COLOR_ICON} != "" ]]; then
+
+        # Did they submit a valid HEX value?
+        if ! [[ $R_COLOR_ICON =~ ^[\#a-fA-F0-9]+$ ]]; then 
+            echo "The color you entered does not appear to be valid. Aborting..."
+            echo ""
+            exit 1
+        fi
+
+        # Add the # character if they omitted it from the hex color
+        if [[ ${R_COLOR_ICON:0:1} != "#" ]]; then
+            R_COLOR_ICON="#${R_COLOR_ICON}"
+        fi
+
+        # The hex color should now be 7 characters. Ex: #ffffff
+        if [[ ${#R_COLOR_ICON} -ne 7 ]]; then
+            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+            echo ""
+            exit 1
+        fi
+
+        COLOR_ICON="${R_COLOR_ICON}"
     fi
 
-    # Add the # character if they omitted it from the hex color
-    if [[ ${R_COLOR_PRIMARY:0:1} != "#" ]]; then
-        R_COLOR_PRIMARY="#${R_COLOR_ACCENT}"
+    # PRIMARY TEXT COLOR ---------------------------------------------------------------------
+
+    echo ""
+    echo "Enter the PRIMARY text color value (in hex)"
+    echo "Or hit ENTER to apply default color ${COLOR_PRIMARY}:"
+    read R_COLOR_PRIMARY
+
+    if [[ ${R_COLOR_PRIMARY} != "" ]]; then
+
+        # Did they submit a valid HEX value?
+        if ! [[ $R_COLOR_PRIMARY =~ ^[\#a-fA-F0-9]+$ ]]; then 
+            echo "The color you entered does not appear to be valid. Aborting..."
+            echo ""
+            exit 1
+        fi
+
+        # Add the # character if they omitted it from the hex color
+        if [[ ${R_COLOR_PRIMARY:0:1} != "#" ]]; then
+            R_COLOR_PRIMARY="#${R_COLOR_ACCENT}"
+        fi
+
+        # The hex color should now be 7 characters. Ex: #ffffff
+        if [[ ${#R_COLOR_PRIMARY} -ne 7 ]]; then
+            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+            echo ""
+            exit 1
+        fi
+
+        COLOR_PRIMARY="${R_COLOR_PRIMARY}"
     fi
 
-    # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${#R_COLOR_PRIMARY} -ne 7 ]]; then
-        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-        echo ""
-        exit 1
+    # ACCENT TEXT COLOR ---------------------------------------------------------------------
+
+    echo ""
+    echo "Enter the ACCENT text color value (in hex)"
+    echo "Or hit ENTER to apply default color ${COLOR_ACCENT}:"
+    read R_COLOR_ACCENT
+
+    if [[ ${R_COLOR_ACCENT} != "" ]]; then
+
+        # Did they submit a valid HEX value?
+        if ! [[ $R_COLOR_ACCENT =~ ^[\#a-fA-F0-9]+$ ]]; then 
+            echo "The color you entered does not appear to be valid. Aborting..."
+            echo ""
+            exit 1
+        fi
+
+        # Add the # character if they omitted it from the hex color
+        if [[ ${R_COLOR_ACCENT:0:1} != "#" ]]; then
+            R_COLOR_ACCENT="#${R_COLOR_ACCENT}"
+        fi
+
+        # The hex color should now be 7 characters. Ex: #ffffff
+        if [[ ${#R_COLOR_ACCENT} -ne 7 ]]; then
+            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+            echo ""
+            exit 1
+        fi
+
+        COLOR_ACCENT="${R_COLOR_ACCENT}"
     fi
 
-    COLOR_PRIMARY="${R_COLOR_PRIMARY}"
-fi
+    # DATA TEXT COLOR -----------------------------------------------------------------------
 
-# ACCENT TEXT COLOR ---------------------------------------------------------------------
+    echo ""
+    echo "Enter the DATA text color value (in hex)"
+    echo "Or hit ENTER to apply default color ${COLOR_DATA}:"
+    read R_COLOR_DATA
 
-echo ""
-echo "Enter the ACCENT text color value (in hex) or hit ENTER to apply default color:"
-read R_COLOR_ACCENT
+    if [[ ${R_COLOR_DATA} != "" ]]; then
 
-if [[ ${R_COLOR_ACCENT} != "" ]]; then
+        # Did they submit a valid HEX value?
+        if ! [[ $R_COLOR_DATA =~ ^[\#a-fA-F0-9]+$ ]]; then 
+            echo "The color you entered does not appear to be valid. Aborting..."
+            echo ""
+            exit 1
+        fi
 
-    # Did they submit a valid HEX value?
-    if ! [[ $R_COLOR_ACCENT =~ ^[\#a-fA-F0-9]+$ ]]; then 
-        echo "The color you entered does not appear to be valid. Aborting..."
-        echo ""
-        exit 1
+        # Add the # character if they omitted it from the hex color
+        if [[ ${R_COLOR_DATA:0:1} != "#" ]]; then
+            R_COLOR_DATA="#${R_COLOR_DATA}"
+        fi
+
+        # The hex color should now be 7 characters. Ex: #ffffff
+        if [[ ${#R_COLOR_DATA} -ne 7 ]]; then
+            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+            echo ""
+            exit 1
+        fi
+
+        COLOR_DATA="${R_COLOR_DATA}"
     fi
 
-    # Add the # character if they omitted it from the hex color
-    if [[ ${R_COLOR_ACCENT:0:1} != "#" ]]; then
-        R_COLOR_ACCENT="#${R_COLOR_ACCENT}"
+    # HR COLOR ------------------------------------------------------------------------------
+
+    echo ""
+    echo "Enter the HORIZONTAL RULE color value (in hex)"
+    echo "Or hit ENTER to apply default color ${COLOR_HR}:"
+    read R_COLOR_HR
+
+    if [[ ${R_COLOR_HR} != "" ]]; then
+
+        # Did they submit a valid HEX value?
+        if ! [[ $R_COLOR_HR =~ ^[\#a-fA-F0-9]+$ ]]; then 
+            echo "The color you entered does not appear to be valid. Aborting..."
+            echo ""
+            exit 1
+        fi
+
+        # Add the # character if they omitted it from the hex color
+        if [[ ${R_COLOR_HR:0:1} != "#" ]]; then
+            R_COLOR_HR="#${R_COLOR_HR}"
+        fi
+
+        # The hex color should now be 7 characters. Ex: #ffffff
+        if [[ ${#R_COLOR_HR} -ne 7 ]]; then
+            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+            echo ""
+            exit 1
+        fi
+
+        COLOR_HR="${R_COLOR_HR}"
     fi
 
-    # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${#R_COLOR_ACCENT} -ne 7 ]]; then
-        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-        echo ""
-        exit 1
+    # BORDER COLOR --------------------------------------------------------------------------
+
+    echo ""
+    echo "Enter the WINDOW BORDER color value (in hex)"
+    echo "Or hit ENTER to apply default color ${COLOR_BORDER}:"
+    read R_COLOR_BORDER
+
+    if [[ ${R_COLOR_BORDER} != "" ]]; then
+
+        # Did they submit a valid HEX value?
+        if ! [[ $R_COLOR_BORDER =~ ^[\#a-fA-F0-9]+$ ]]; then 
+            echo "The color you entered does not appear to be valid. Aborting..."
+            echo ""
+            exit 1
+        fi
+
+        # Add the # character if they omitted it from the hex color
+        if [[ ${R_COLOR_BORDER:0:1} != "#" ]]; then
+            R_COLOR_BORDER="#${R_COLOR_BORDER}"
+        fi
+
+        # The hex color should now be 7 characters. Ex: #ffffff
+        if [[ ${#R_COLOR_BORDER} -ne 7 ]]; then
+            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+            echo ""
+            exit 1
+        fi
+
+        COLOR_BORDER="${R_COLOR_BORDER}"
     fi
 
-    COLOR_ACCENT="${R_COLOR_ACCENT}"
-fi
+    # BATTERY INDICATOR COLOR ---------------------------------------------------------------
 
-# DATA TEXT COLOR -----------------------------------------------------------------------
+    echo ""
+    echo "Enter the BATTERY INDICATOR color value (in hex)"
+    echo "Or hit ENTER to apply default color ${COLOR_BAT_FULL}:"
+    read R_COLOR_BAT_FULL
 
-echo ""
-echo "Enter the DATA text color value (in hex) or hit ENTER to apply default color:"
-read R_COLOR_DATA
+    if [[ ${R_COLOR_BAT_FULL} != "" ]]; then
 
-if [[ ${R_COLOR_DATA} != "" ]]; then
+        # Did they submit a valid HEX value?
+        if ! [[ $R_COLOR_BAT_FULL =~ ^[\#a-fA-F0-9]+$ ]]; then 
+            echo "The color you entered does not appear to be valid. Aborting..."
+            echo ""
+            exit 1
+        fi
 
-    # Did they submit a valid HEX value?
-    if ! [[ $R_COLOR_DATA =~ ^[\#a-fA-F0-9]+$ ]]; then 
-        echo "The color you entered does not appear to be valid. Aborting..."
-        echo ""
-        exit 1
+        # Add the # character if they omitted it from the hex color
+        if [[ ${R_COLOR_BAT_FULL:0:1} != "#" ]]; then
+            R_COLOR_BAT_FULL="#${R_COLOR_BAT_FULL}"
+        fi
+
+        # The hex color should now be 7 characters. Ex: #ffffff
+        if [[ ${#R_COLOR_BAT_FULL} -ne 7 ]]; then
+            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+            echo ""
+            exit 1
+        fi
+
+        COLOR_BAT_FULL="${R_COLOR_BAT_FULL}"
     fi
 
-    # Add the # character if they omitted it from the hex color
-    if [[ ${R_COLOR_DATA:0:1} != "#" ]]; then
-        R_COLOR_DATA="#${R_COLOR_DATA}"
+    # BATTERY EMPTY COLOR -------------------------------------------------------------------
+
+    echo ""
+    echo "Enter the BATTERY EMPTY INDICATOR color value (in hex)"
+    echo "Or hit ENTER to apply default color ${COLOR_BAT_EMPT}:"
+    read R_COLOR_BAT_EMPT
+
+    if [[ ${R_COLOR_BAT_EMPT} != "" ]]; then
+
+        # Did they submit a valid HEX value?
+        if ! [[ $R_COLOR_BAT_EMPT =~ ^[\#a-fA-F0-9]+$ ]]; then 
+            echo "The color you entered does not appear to be valid. Aborting..."
+            echo ""
+            exit 1
+        fi
+
+        # Add the # character if they omitted it from the hex color
+        if [[ ${R_COLOR_BAT_EMPT:0:1} != "#" ]]; then
+            R_COLOR_BAT_EMPT="#${R_COLOR_BAT_EMPT}"
+        fi
+
+        # The hex color should now be 7 characters. Ex: #ffffff
+        if [[ ${#R_COLOR_BAT_EMPT} -ne 7 ]]; then
+            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+            echo ""
+            exit 1
+        fi
+
+        COLOR_BAT_EMPT="${R_COLOR_BAT_EMPT}"
     fi
 
-    # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${#R_COLOR_DATA} -ne 7 ]]; then
-        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-        echo ""
-        exit 1
+
+    # BACKGROUND TRANPARENCY COLOR ----------------------------------------------------------
+
+    echo ""
+    echo "Enter the BACKGROUND TRANSPARENCY value (0-255)"
+    echo "Or hit ENTER to apply default value ${BG_TRANS}:"
+    read R_BG_TRANS
+
+    if [[ ${R_BG_TRANS} != "" ]]; then
+
+        # Is the trans value within range?
+        if [[ ${R_BG_TRANS} -lt 0 || ${R_BG_TRANS} -gt 255  ]]; then
+            echo "The transparency value must be between 0 and 255. Aborting..."
+            echo ""
+            exit 1
+        fi
+
+        BG_TRANS="${R_BG_TRANS}"
     fi
 
-    COLOR_DATA="${R_COLOR_DATA}"
-fi
-
-# HR COLOR ------------------------------------------------------------------------------
-
-echo ""
-echo "Enter the HORIZONTAL RULE color value (in hex) or hit ENTER to apply default color:"
-read R_COLOR_HR
-
-if [[ ${R_COLOR_HR} != "" ]]; then
-
-    # Did they submit a valid HEX value?
-    if ! [[ $R_COLOR_HR =~ ^[\#a-fA-F0-9]+$ ]]; then 
-        echo "The color you entered does not appear to be valid. Aborting..."
-        echo ""
-        exit 1
-    fi
-
-    # Add the # character if they omitted it from the hex color
-    if [[ ${R_COLOR_HR:0:1} != "#" ]]; then
-        R_COLOR_HR="#${R_COLOR_HR}"
-    fi
-
-    # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${#R_COLOR_HR} -ne 7 ]]; then
-        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-        echo ""
-        exit 1
-    fi
-
-    COLOR_HR="${R_COLOR_HR}"
-fi
-
-# BATTERY INDICATOR COLOR ---------------------------------------------------------------
-
-echo ""
-echo "Enter the BATTERY INDICATOR color value (in hex) or hit ENTER to apply default color:"
-read R_COLOR_BAT_FULL
-
-if [[ ${R_COLOR_BAT_FULL} != "" ]]; then
-
-    # Did they submit a valid HEX value?
-    if ! [[ $R_COLOR_BAT_FULL =~ ^[\#a-fA-F0-9]+$ ]]; then 
-        echo "The color you entered does not appear to be valid. Aborting..."
-        echo ""
-        exit 1
-    fi
-
-    # Add the # character if they omitted it from the hex color
-    if [[ ${R_COLOR_BAT_FULL:0:1} != "#" ]]; then
-        R_COLOR_BAT_FULL="#${R_COLOR_BAT_FULL}"
-    fi
-
-    # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${#R_COLOR_BAT_FULL} -ne 7 ]]; then
-        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-        echo ""
-        exit 1
-    fi
-
-    COLOR_BAT_FULL="${R_COLOR_BAT_FULL}"
-fi
-
-# BATTERY EMPTY COLOR -------------------------------------------------------------------
-
-echo ""
-echo "Enter the BATTERY EMPTY INDICATOR color value (in hex) or hit ENTER to apply default color:"
-read R_COLOR_BAT_EMPT
-
-if [[ ${R_COLOR_BAT_EMPT} != "" ]]; then
-
-    # Did they submit a valid HEX value?
-    if ! [[ $R_COLOR_BAT_EMPT =~ ^[\#a-fA-F0-9]+$ ]]; then 
-        echo "The color you entered does not appear to be valid. Aborting..."
-        echo ""
-        exit 1
-    fi
-
-    # Add the # character if they omitted it from the hex color
-    if [[ ${R_COLOR_BAT_EMPT:0:1} != "#" ]]; then
-        R_COLOR_BAT_EMPT="#${R_COLOR_BAT_EMPT}"
-    fi
-
-    # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${#R_COLOR_BAT_EMPT} -ne 7 ]]; then
-        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-        echo ""
-        exit 1
-    fi
-
-    COLOR_BAT_EMPT="${R_COLOR_BAT_EMPT}"
-fi
-
-
-# BACKGROUND TRANPARENCY COLOR ----------------------------------------------------------
-
-echo ""
-echo "Enter the BACKGROUND TRANSPARENCY color value (in hex) or hit ENTER to apply default color:"
-read R_BG_TRANS
-
-if [[ ${R_BG_TRANS} != "" ]]; then
-
-    # Did they submit a valid HEX value?
-    if ! [[ $R_BG_TRANS =~ ^[\#a-fA-F0-9]+$ ]]; then 
-        echo "The color you entered does not appear to be valid. Aborting..."
-        echo ""
-        exit 1
-    fi
-
-    # Add the # character if they omitted it from the hex color
-    if [[ ${R_BG_TRANS:0:1} != "#" ]]; then
-        R_BG_TRANS="#${R_BG_TRANS}"
-    fi
-
-    # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${#R_BG_TRANS} -ne 7 ]]; then
-        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-        echo ""
-        exit 1
-    fi
-
-    BG_TRANS="${R_BG_TRANS}"
-fi
-
-
+fi 
 
 
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
@@ -386,10 +431,67 @@ fi
 CURLARGS="-f -s -S -k"
 
 # Execute the Curl command and cache the json file
+# $(curl ${CURLARGS} ${APIURL} -o ${CACHEDIR}/${JSON_CACHEFILE})
 CURL=$(curl ${CURLARGS} ${APIURL})
 echo "${CURL}" > ${CACHEDIR}/${JSON_CACHEFILE}
 
-# $(curl ${CURLARGS} ${APIURL} -o ${CACHEDIR}/${JSON_CACHEFILE})
+
+
+# GENERATE COLORPALETTE PNG -------------------------------------------------------------
+
+echo ""
+echo "Generating colorpalette image."
+
+# Use ImageMagick to create a color palette image based on the current wallpaper
+convert ${WALLPAPERPATH} \
++dither \
+-colors ${COLORPN} \
+-unique-colors \
+-filter box \
+-geometry ${COLORPWIDTH} \
+${CACHEDIR}/${COLORPIMG}
+
+# If the user selected automatic mode we need to grab the hex values from the colorpalette PNG.
+if [[ ${MODE} -eq 1 ]]; then
+
+    palette_image="${CACHEDIR}/${COLORPIMG}"
+
+    # Create a text file with the color values
+    convert ${palette_image} -format %c -depth 8  histogram:info:/tmp/colorpalette.txt
+
+    # Extract hex color values
+    sed -r 's/.*[[:space:]](\#[a-zA-Z0-9]+)[[:space:]].*/\1/w /tmp/hexcolors.txt' /tmp/colorpalette.txt > /tmp/hexcolors.txt;
+
+    readarray -t COLARRAY </tmp/hexcolors.txt
+
+    # Set the variables
+
+    # Background color
+    COLOR_BG="${COLARRAY[2]}"
+
+    # Border color
+    COLOR_BORDER="${COLARRAY[11]}"
+
+    # Weather icon color
+    COLOR_ICON="${COLARRAY[13]}"
+
+    # Primary text color
+    COLOR_PRIMARY="${COLARRAY[14]}"
+
+    # Data text color
+    COLOR_DATA="${COLARRAY[13]}"
+
+    # Accent text color
+    COLOR_ACCENT="${COLARRAY[12]}"
+
+    # HR color
+    COLOR_HR="${COLARRAY[11]}"
+
+    # Battery bar color
+    COLOR_BAT_FULL="${COLARRAY[12]}"
+
+
+fi 
 
 
 # COPY SVG TO TMP/DIRECTORY  ------------------------------------------------------------
@@ -479,20 +581,6 @@ cp -f ${PNGICONS}/${FORECASTCODE3}.png ${CACHEDIR}/forecast3.png
 cp -f ${PNGICONS}/${FORECASTCODE4}.png ${CACHEDIR}/forecast4.png
 cp -f ${PNGICONS}/${FORECASTCODE5}.png ${CACHEDIR}/forecast5.png
 
-
-# GENERATE COLORPALETTE PNG -------------------------------------------------------------
-
-echo ""
-echo "Generating colorpalette image."
-
-# Use ImageMagick to create a color palette image based on the current wallpaper
-convert ${WALLPAPERPATH} \
-+dither \
--colors ${COLORPN} \
--unique-colors \
--filter box \
--geometry ${COLORPWIDTH} \
-${CACHEDIR}/${COLORPIMG}
 
 
 # REPLACE TEMPLATE VARIABLES ------------------------------------------------------------
