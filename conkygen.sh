@@ -118,6 +118,13 @@ if ! [[ $(type command) ]]; then
     exit 1;
 fi
 
+# Is Inkscape installed? The SVG to PNG converter is better in Inkscape.
+# If it's installed we'll use it for that part of the process
+converter="ImageMagick"
+if [ "$(command -v inkscape)" >/dev/null 2>&1 ]; then
+    converter="Inkscape"
+fi
+
 # WELCOME MESSAGE ---------------------------------------------------------------------
 
 echo ""
@@ -127,7 +134,7 @@ echo "Welcome to ConkyMatic Version ${VERSION}"
 # WEATHER ICON COLOR --------------------------------------------------------------------
 
 echo ""
-echo "Enter the weather icon color value (in hex) or hit ENTER to apply default color:"
+echo "Enter the WEATHER ICON color value (in hex) or hit ENTER to apply default color:"
 read R_COLOR_ICON
 
 if [[ ${R_COLOR_ICON} != "" ]]; then
@@ -145,7 +152,7 @@ if [[ ${R_COLOR_ICON} != "" ]]; then
     fi
 
     # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${R_COLOR_ICON} -ne 7 ]]; then
+    if [[ ${#R_COLOR_ICON} -ne 7 ]]; then
         echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
         echo ""
         exit 1
@@ -155,10 +162,40 @@ if [[ ${R_COLOR_ICON} != "" ]]; then
 fi
 
 
+# PRIMARY TEXT COLOR ---------------------------------------------------------------------
+
+echo ""
+echo "Enter the PRIMARY text color value (in hex) or hit ENTER to apply default color:"
+read R_COLOR_PRIMARY
+
+if [[ ${R_COLOR_PRIMARY} != "" ]]; then
+
+    # Did they submit a valid HEX value?
+    if ! [[ $R_COLOR_PRIMARY =~ ^[\#a-fA-F0-9]+$ ]]; then 
+        echo "The color you entered does not appear to be valid. Aborting..."
+        echo ""
+        exit 1
+    fi
+
+    # Add the # character if they omitted it from the hex color
+    if [[ ${R_COLOR_PRIMARY:0:1} != "#" ]]; then
+        R_COLOR_PRIMARY="#${R_COLOR_ACCENT}"
+    fi
+
+    # The hex color should now be 7 characters. Ex: #ffffff
+    if [[ ${#R_COLOR_PRIMARY} -ne 7 ]]; then
+        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+        echo ""
+        exit 1
+    fi
+
+    COLOR_PRIMARY="${R_COLOR_PRIMARY}"
+fi
+
 # ACCENT TEXT COLOR ---------------------------------------------------------------------
 
 echo ""
-echo "Enter the accent text color value (in hex) or hit ENTER to apply default color:"
+echo "Enter the ACCENT text color value (in hex) or hit ENTER to apply default color:"
 read R_COLOR_ACCENT
 
 if [[ ${R_COLOR_ACCENT} != "" ]]; then
@@ -176,7 +213,7 @@ if [[ ${R_COLOR_ACCENT} != "" ]]; then
     fi
 
     # The hex color should now be 7 characters. Ex: #ffffff
-    if [[ ${R_COLOR_ACCENT} -ne 7 ]]; then
+    if [[ ${#R_COLOR_ACCENT} -ne 7 ]]; then
         echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
         echo ""
         exit 1
@@ -184,6 +221,160 @@ if [[ ${R_COLOR_ACCENT} != "" ]]; then
 
     COLOR_ACCENT="${R_COLOR_ACCENT}"
 fi
+
+# DATA TEXT COLOR -----------------------------------------------------------------------
+
+echo ""
+echo "Enter the DATA text color value (in hex) or hit ENTER to apply default color:"
+read R_COLOR_DATA
+
+if [[ ${R_COLOR_DATA} != "" ]]; then
+
+    # Did they submit a valid HEX value?
+    if ! [[ $R_COLOR_DATA =~ ^[\#a-fA-F0-9]+$ ]]; then 
+        echo "The color you entered does not appear to be valid. Aborting..."
+        echo ""
+        exit 1
+    fi
+
+    # Add the # character if they omitted it from the hex color
+    if [[ ${R_COLOR_DATA:0:1} != "#" ]]; then
+        R_COLOR_DATA="#${R_COLOR_DATA}"
+    fi
+
+    # The hex color should now be 7 characters. Ex: #ffffff
+    if [[ ${#R_COLOR_DATA} -ne 7 ]]; then
+        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+        echo ""
+        exit 1
+    fi
+
+    COLOR_DATA="${R_COLOR_DATA}"
+fi
+
+# HR COLOR ------------------------------------------------------------------------------
+
+echo ""
+echo "Enter the HORIZONTAL RULE color value (in hex) or hit ENTER to apply default color:"
+read R_COLOR_HR
+
+if [[ ${R_COLOR_HR} != "" ]]; then
+
+    # Did they submit a valid HEX value?
+    if ! [[ $R_COLOR_HR =~ ^[\#a-fA-F0-9]+$ ]]; then 
+        echo "The color you entered does not appear to be valid. Aborting..."
+        echo ""
+        exit 1
+    fi
+
+    # Add the # character if they omitted it from the hex color
+    if [[ ${R_COLOR_HR:0:1} != "#" ]]; then
+        R_COLOR_HR="#${R_COLOR_HR}"
+    fi
+
+    # The hex color should now be 7 characters. Ex: #ffffff
+    if [[ ${#R_COLOR_HR} -ne 7 ]]; then
+        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+        echo ""
+        exit 1
+    fi
+
+    COLOR_HR="${R_COLOR_HR}"
+fi
+
+# BATTERY INDICATOR COLOR ---------------------------------------------------------------
+
+echo ""
+echo "Enter the BATTERY INDICATOR color value (in hex) or hit ENTER to apply default color:"
+read R_COLOR_BAT_FULL
+
+if [[ ${R_COLOR_BAT_FULL} != "" ]]; then
+
+    # Did they submit a valid HEX value?
+    if ! [[ $R_COLOR_BAT_FULL =~ ^[\#a-fA-F0-9]+$ ]]; then 
+        echo "The color you entered does not appear to be valid. Aborting..."
+        echo ""
+        exit 1
+    fi
+
+    # Add the # character if they omitted it from the hex color
+    if [[ ${R_COLOR_BAT_FULL:0:1} != "#" ]]; then
+        R_COLOR_BAT_FULL="#${R_COLOR_BAT_FULL}"
+    fi
+
+    # The hex color should now be 7 characters. Ex: #ffffff
+    if [[ ${#R_COLOR_BAT_FULL} -ne 7 ]]; then
+        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+        echo ""
+        exit 1
+    fi
+
+    COLOR_BAT_FULL="${R_COLOR_BAT_FULL}"
+fi
+
+# BATTERY EMPTY COLOR -------------------------------------------------------------------
+
+echo ""
+echo "Enter the BATTERY EMPTY INDICATOR color value (in hex) or hit ENTER to apply default color:"
+read R_COLOR_BAT_EMPT
+
+if [[ ${R_COLOR_BAT_EMPT} != "" ]]; then
+
+    # Did they submit a valid HEX value?
+    if ! [[ $R_COLOR_BAT_EMPT =~ ^[\#a-fA-F0-9]+$ ]]; then 
+        echo "The color you entered does not appear to be valid. Aborting..."
+        echo ""
+        exit 1
+    fi
+
+    # Add the # character if they omitted it from the hex color
+    if [[ ${R_COLOR_BAT_EMPT:0:1} != "#" ]]; then
+        R_COLOR_BAT_EMPT="#${R_COLOR_BAT_EMPT}"
+    fi
+
+    # The hex color should now be 7 characters. Ex: #ffffff
+    if [[ ${#R_COLOR_BAT_EMPT} -ne 7 ]]; then
+        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+        echo ""
+        exit 1
+    fi
+
+    COLOR_BAT_EMPT="${R_COLOR_BAT_EMPT}"
+fi
+
+
+# BACKGROUND TRANPARENCY COLOR ----------------------------------------------------------
+
+echo ""
+echo "Enter the BACKGROUND TRANSPARENCY color value (in hex) or hit ENTER to apply default color:"
+read R_BG_TRANS
+
+if [[ ${R_BG_TRANS} != "" ]]; then
+
+    # Did they submit a valid HEX value?
+    if ! [[ $R_BG_TRANS =~ ^[\#a-fA-F0-9]+$ ]]; then 
+        echo "The color you entered does not appear to be valid. Aborting..."
+        echo ""
+        exit 1
+    fi
+
+    # Add the # character if they omitted it from the hex color
+    if [[ ${R_BG_TRANS:0:1} != "#" ]]; then
+        R_BG_TRANS="#${R_BG_TRANS}"
+    fi
+
+    # The hex color should now be 7 characters. Ex: #ffffff
+    if [[ ${#R_BG_TRANS} -ne 7 ]]; then
+        echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
+        echo ""
+        exit 1
+    fi
+
+    BG_TRANS="${R_BG_TRANS}"
+fi
+
+
+
 
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
 
@@ -195,10 +386,81 @@ fi
 CURLARGS="-f -s -S -k"
 
 # Execute the Curl command and cache the json file
-$(curl ${CURLARGS} ${APIURL} -o ${CACHEDIR}/${JSON_CACHEFILE})
+CURL=$(curl ${CURLARGS} ${APIURL})
+echo "${CURL}" > ${CACHEDIR}/${JSON_CACHEFILE}
+
+# $(curl ${CURLARGS} ${APIURL} -o ${CACHEDIR}/${JSON_CACHEFILE})
 
 
-# GENERATE PNG IMAGES FOR CURRENT WEATHER & FORECAST ------------------------------------
+# COPY SVG TO TMP/DIRECTORY  ------------------------------------------------------------
+
+# Name of the temp directory that we will copy the SVGs to.
+TEMPDIR="/tmp/SVGCONVERT"
+
+# Copy the master svg images to the temp directory.
+# We don't want to mess with the originals.
+cp -R "${BASEURL}/${SVGICONS}" "${TEMPDIR}"
+
+
+# REPLACE COLOR IN SVG FILES ------------------------------------------------------------
+
+# We now open each SVG file in the temp directory and replace the fill color
+for filepath in "${TEMPDIR}"/*.svg
+    do
+    # Match the pattern: fill="#hexval" and replace with the new color
+    sed -i -e "s/fill=\"#[[:alnum:]]*\"/fill=\"${COLOR_ICON}\"/g" "$filepath"
+done
+
+# CONVERT SVG TO PNG  -------------------------------------------------------------------
+
+echo ""
+echo "Converting images using: $converter"
+echo ""
+
+for filepath in "${TEMPDIR}"/*.svg
+    do
+
+    # Extract the filename from the path
+    filename="${filepath##*/}"
+
+    # Remove the file extension, leaving only the name  
+    name="${filename%%.*}"
+
+    echo "Converting ${filename}"
+
+    # Convert to PNG using either Inkscape or ImageMagick
+    if [[ $converter == "inkscape" ]]
+    then
+        inkscape -z -e \
+        "${BASEURL}/${PNGICONS}/${name}.png" \
+        -w "${ICONSIZE}" \
+        -h "${ICONSIZE}" \
+        "$filepath" \
+        >/dev/null 2>&1 || { 
+                                echo "An error was encountered. Aborting...";
+                                rm -R "${TEMPDIR}";
+                                exit 1; 
+                            }
+    else
+        convert \
+        -background none \
+        -density 1500 \
+        -resize "${ICONSIZE}x${ICONSIZE}!" \
+        "$filepath" \
+        "${BASEURL}/${PNGICONS}/${name}.png" \
+        >/dev/null 2>&1 || { 
+                                echo "An error was encountered. Aborting..."; 
+                                rm -R "${TEMPDIR}";
+                                exit 1;
+                            }
+    fi
+
+done
+
+# Delete the temporary directory
+rm -R "${TEMPDIR}"
+
+# COPY PNG IMAGES TO THE CACHE DIR FOR CURRENT WEATHER & FORECAST -----------------------
 
 # Fetch the weather and forecast codes from the JSON file.
 # These will get matchedd to a PNG image with the same name below.
@@ -208,7 +470,6 @@ FORECASTCODE2=$(jq .query.results.channel.item.forecast[2].code ${CACHEDIR}/${JS
 FORECASTCODE3=$(jq .query.results.channel.item.forecast[3].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
 FORECASTCODE4=$(jq .query.results.channel.item.forecast[4].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
 FORECASTCODE5=$(jq .query.results.channel.item.forecast[5].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
-
 
 # Copy the PNG image with the matching weather/forecast code number to the cache folder
 cp -f ${PNGICONS}/${CRWEATHERCODE}.png ${CACHEDIR}/weather.png
@@ -220,6 +481,9 @@ cp -f ${PNGICONS}/${FORECASTCODE5}.png ${CACHEDIR}/forecast5.png
 
 
 # GENERATE COLORPALETTE PNG -------------------------------------------------------------
+
+echo ""
+echo "Generating colorpalette image."
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
 convert ${WALLPAPERPATH} \
@@ -233,16 +497,15 @@ ${CACHEDIR}/${COLORPIMG}
 
 # REPLACE TEMPLATE VARIABLES ------------------------------------------------------------
 
-# First we make a copy of the template
+echo ""
+echo "Building conkyrc file based on ${TEMPLFILE}"
 
+# Before replacing vars make a copy of the template
 cp ${TEMPLDIR}/${TEMPLFILE} ${CACHEDIR}/conkyrc
 
-
-# VARIABLE REPLACEMENT ------------------------------------------------------------------
-
 # API URL
-# We need to excape ampersands before running sed
-APIURL=${APIURL/&/\\&}
+# We need to escape ampersands before running sed
+APIURL=${APIURL//&/\\&}
 sed -i -e "s|_VAR:API_URL|${APIURL}|g" "${CACHEDIR}/conkyrc"
 
 # Path to JSON file; /path/to/Cache/weather.json
@@ -274,13 +537,25 @@ sed -i -e "s|_VAR:COLOR_BORDER_|${COLOR_BORDER}|g" "${CACHEDIR}/conkyrc"
 # CLEANUP -------------------------------------------------------------------------------
 
 # Kill conky
+echo ""
+echo "Shutting down conky."
 pkill conky
     
 # Copy conkyrc file to its proper location
+echo ""
+echo "Copying new .conkyrc file to home directory."
 cp ${CACHEDIR}/conkyrc ~/.conkyrc
 
 # Remove the temp file
+echo ""
+echo "Deleting temporary .conkyrc file"
 rm ${CACHEDIR}/conkyrc
 
 # Launch conky
+echo ""
+echo "Relaunching conky."
 conky 2>/dev/null
+
+echo ""
+echo "Done!"
+echo ""
