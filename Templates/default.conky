@@ -76,7 +76,7 @@ own_window = true,							-- create your own window to draw
 own_window_argb_value = _VAR:BG_TRANS_,			    -- real transparency - composite manager required 0-255
 own_window_argb_visual = true,				-- use ARGB - composite manager required
 own_window_class = 'Conky',					-- manually set the WM_CLASS name for use with xprop
-own_window_colour = '_VAR:COLOR_BG_',	        -- set colour if own_window_transparent no
+own_window_colour = '_VAR:COLOR_BG_',	            -- set colour if own_window_transparent no
 own_window_hints = 'undecorated,below,above,sticky,skip_taskbar,skip_pager',  -- if own_window true - just hints - own_window_type sets it
 own_window_transparent = false,				-- if own_window_argb_visual is true sets background opacity 0%
 own_window_title = 'system_conky',			-- set the name manually  - default conky "hostname"
@@ -84,14 +84,19 @@ own_window_type = 'normal',				    -- if own_window true options are: normal/ove
 
 --Colors
 
-color1 = '_VAR:COLOR_PRIMARY_',                         --primary color
-color2 = '_VAR:COLOR_DATA_',                         --data color
-color3 = '_VAR:COLOR_ACCENT_',                         --accent color
-color4 = '_VAR:COLOR_HR_',                         --hr color
-color5 = '_VAR:COLOR_BAT_FULL_',                         --battery bar full color
-color6 = '_VAR:COLOR_BAT_EMPT_',                         --battery bar empty color
+color0 = '_VAR:COLOR_TIME_',                         --time
+color1 = '_VAR:COLOR_DATE_',                         --date
+color2 = '_VAR:COLOR_WEATHER_',                         --weather data
+color3 = '_VAR:COLOR_HEADINGS_',                         --headings
+color4 = '_VAR:COLOR_SUBHEADINGS_',                         --subheadings
+color5 = '_VAR:COLOR_DATA_',                         --data
+color7 = '_VAR:COLOR_HR_',                         --hr color
+color8 = '_VAR:COLOR_BARS_NORM_',                         --bars normal
+color9 = '_VAR:COLOR_BARS_WARN_',                         --bars warning
 
 default_color = '_VAR:COLOR_BORDER_',                  -- default color and window border color
+
+
 
 
 };
@@ -116,18 +121,18 @@ ${execi 300 cp -f _VAR:WEATHER_ICONS_/$(jq .query.results.channel.item.forecast[
 # -----------------------------------------------------------------------------------------
 # 
 # Time and date
-${font Roboto:size=24}${color3}${alignc}\
+${font Roboto:size=24}${color0}${alignc}\
 ${voffset -4}${time %I:%M %p}\
 ${font}${color}
 ${voffset 2}${color1}${font Roboto:size=13}${alignc}\
 ${time %B %d, %Y}\
 ${font}${color}
-${color4}${hr 2}
+${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
 # Sunrise and sunset
-${font Roboto:size=11:weight:bold}${color1}\
+${font Roboto:size=11:weight:bold}${color3}\
 ${alignc}SUNRISE       SUNSET
 ${color}\
 ${color2}\
@@ -135,12 +140,12 @@ ${voffset 1}${alignc} \
 ${execi 300 jq -r .query.results.channel.astronomy.sunrise _VAR:JSON_FILEPATH_ | awk '{ print toupper($0) }'}      \
 ${execi 300 jq -r .query.results.channel.astronomy.sunset  _VAR:JSON_FILEPATH_ | awk '{ print toupper($0) }'}\
 ${font}${color}
-${voffset -2}${color4}${hr 2}
+${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
 # Current temperature
-${font Roboto:size=20}${color1}\
+${font Roboto:size=20}${color2}\
 ${voffset -4}${offset 47}\
 ${execi 300 jq .query.results.channel.item.condition.temp _VAR:JSON_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])' #remove quotes}°\
 ${font}${color}
@@ -149,7 +154,7 @@ ${font}${color}
 ${image _VAR:CACHE_DIR_/weather.png -p 134,140 -s 56x56}
 #
 # High and low temps. Data gets pulled from the json file. We use awk to round the number
-${font Roboto:size=10:weight:bold}${color1}\
+${font Roboto:size=10:weight:bold}${color2}\
 ${voffset -24}${offset 40}\
 ${execi 300 jq -r .query.results.channel.item.forecast[0].low _VAR:JSON_FILEPATH_  | awk '{print int($1+0.5)}' # round num}°  |  \
 ${execi 300 jq -r .query.results.channel.item.forecast[0].high _VAR:JSON_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
@@ -163,14 +168,14 @@ ${font}${color}
 #
 #
 # City, longitude and latitude
-${font Roboto:size=10:weight:bold}${alignc}${color1}\
+${font Roboto:size=10:weight:bold}${alignc}${color2}\
 ${voffset 2}\
 ${execi 300 jq -r .query.results.channel.location.city _VAR:JSON_FILEPATH_},\
 ${execi 300 jq -r .query.results.channel.location.region _VAR:JSON_FILEPATH_}  \
 ${execi 300 jq -r .query.results.channel.item.lat _VAR:JSON_FILEPATH_  | awk '{print int($1+0.5)}' # round num} N  \
 ${execi 30 jq -r .query.results.channel.item.long _VAR:JSON_FILEPATH_ | awk '{print int($1+0.5)}' # round num} W    \
 ${font}${color}
-${voffset -2}${color4}${hr 2}
+${voffset -2}${color7}${hr 2}
 #
 #
 #
@@ -201,7 +206,7 @@ ${goto 119}${execi 300 jq -r  .query.results.channel.item.forecast[3].day _VAR:J
 ${goto 168}${execi 300 jq -r  .query.results.channel.item.forecast[4].day _VAR:JSON_FILEPATH_ }\
 ${goto 217}${execi 300 jq -r  .query.results.channel.item.forecast[5].day _VAR:JSON_FILEPATH_ }\
 ${font}${color}
-${voffset -5}${color4}${hr 2}
+${voffset -5}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
@@ -209,96 +214,82 @@ ${voffset -5}${color4}${hr 2}
 # Note: If the battery level drops below 20% it changes to red
  ${font Roboto:size=11:weight:bold}\
 ${if_match ${battery_percent} < 20}\
-${color6}${battery_bar 10,134 BAT0}    ${color1}BAT${alignr}${color6}${battery_percent}%\
-${else}${color5}${battery_bar 10,134 BAT0}   ${color1}BAT  ${alignr}${color2}${battery_percent}%\
+${color9}${battery_bar 10,134 BAT0}    ${color3}BAT${alignr}${color9}${battery_percent}%\
+${else}${color8}${battery_bar 10,134 BAT0}   ${color3}BAT  ${alignr}${color5}${battery_percent}%\
 ${endif}\
 ${font}
 #
 # CPU bar.
 # Note: If greater than 80% of the CPU is being used it turns red
  ${font Roboto:size=11:weight:bold}\
-${color1}${cpubar cpu0 10,134}   ${color1}CPU${alignr}\
-${if_match ${cpu cpu0} > 80}${color6}\
-${else}${if_match ${cpu cpu0} > 50}${color3}\
-${else}${color2}${endif}\
-${endif}${cpu cpu0}% \
+${color8}${cpubar cpu0 10,134}   \
+${color3}CPU\
+${alignr}${color5}${cpu cpu0}% \
 ${font}
 #
 # RAM bar
  ${font Roboto:size=11:weight:bold}\
-${color1}${membar 10,134}   RAM${alignr}\
-${if_match ${memperc} > 80}${color6}\
-${else}${color2}\
-${endif}\
-${color2}${memperc}% \
+${color8}${membar 10,134}   \
+${color3}RAM$\
+{alignr}${color5}${memperc}% \
 ${font}
-${voffset -5}${color4}${hr 2}
-#
-# Network Speed
-# ${font Roboto:size=11:weight:bold}\
-# ${color1}${downspeedgraph wlp58s0 20,134 ${color5} ${color6} }   DWN  ${alignr}\
-# ${color2}${downspeedf wlp58s0}
-# ${color1}${upspeedgraph wlp58s0 20,134 ${color5} ${color6} }   UPL  ${alignr}\
-# ${color2}${upspeedf wlp58s0}\
-# ${font}
-# ${color4}${hr 2}
-#
+${voffset -5}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
 # Used and free space on root, home, and swap
 ${voffset -2}${font Roboto:size=11:weight:bold}\
- ${color3}${fs_used} Used ${alignr}${color2}${fs_free} Free \
-#${color3}Home ${offset 15}${color1}${fs_used /home} Used ${alignr}${color2}${fs_free /home} Free 
+ ${color3}${fs_used} Used ${alignr}${color5}${fs_free} Free \
+#${color3}Home ${offset 15}${color1}${fs_used /home} Used ${alignr}${color5}${fs_free /home} Free 
 ${font}${color}
-${voffset -2}${color4}${hr 2}
+${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
 # Uptime, CPU temp, CPU frequency, fan speed
 ${voffset -2}${font Roboto:size=11:weight:bold}\
- ${color3}Uptime ${alignr}${color2} $uptime_short 
- ${color3}Processes${alignr}${color2}${processes} 
-${color4}${hr 2}
- ${color3}CPU Temp ${alignr}${color2}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
- ${color3}Fan Speed ${alignr}${color2}${freq_g} RPM \
+ ${color3}Uptime ${alignr}${color5} $uptime_short 
+ ${color3}Processes${alignr}${color5}${processes} 
+${color7}${hr 2}
+ ${color3}CPU Temp ${alignr}${color5}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
+ ${color3}Fan Speed ${alignr}${color5}${freq_g} RPM \
 ${font}${color}
-${voffset -2}${color4}${hr 2}
+${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
 # CPU usage. Top 6 processes
 ${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
- CPU${alignr}${color2}Intel i7 
- ${color1}${top name 1}${alignr}${color2}${top cpu 1}% 
- ${color1}${top name 2}${alignr}${color2}${top cpu 2}% 
- ${color1}${top name 3}${alignr}${color2}${top cpu 3}% 
- ${color1}${top name 4}${alignr}${color2}${top cpu 4}% 
- ${color1}${top name 5}${alignr}${color2}${top cpu 5}% 
- ${color1}${top name 6}${alignr}${color2}${top cpu 6}% \
+ CPU${alignr}${color5}Intel i7 
+ ${color4}${top name 1}${alignr}${color5}${top cpu 1}% 
+ ${color4}${top name 2}${alignr}${color5}${top cpu 2}% 
+ ${color4}${top name 3}${alignr}${color5}${top cpu 3}% 
+ ${color4}${top name 4}${alignr}${color5}${top cpu 4}% 
+ ${color4}${top name 5}${alignr}${color5}${top cpu 5}% 
+ ${color4}${top name 6}${alignr}${color5}${top cpu 6}% \
 ${font}${color}
-${voffset -2}${color4}${hr 2}
+${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
 # Memory usage. Top 6 applications
-${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
- Memory${alignr}${color2}${memmax}  
- ${color1}${top_mem name 1}${alignr}${alignr}${color2}${top_mem mem 1}% 
- ${color1}${top_mem name 2}${alignr}${alignr}${color2}${top_mem mem 2}% 
- ${color1}${top_mem name 3}${alignr}${alignr}${color2}${top_mem mem 3}% 
- ${color1}${top_mem name 4}${alignr}${alignr}${color2}${top_mem mem 4}% 
- ${color1}${top_mem name 5}${alignr}${alignr}${color2}${top_mem mem 5}% 
- ${color1}${top_mem name 6}${alignr}${alignr}${color2}${top_mem mem 6}% 
- ${color3}Total Used${alignr}${color2}${mem} \
+${voffset -2}${font Roboto:size=11:weight:bold}\
+ ${color3}Memory${alignr}${color5}${memmax}  
+ ${color4}${top_mem name 1}${alignr}${alignr}${color5}${top_mem mem 1}% 
+ ${color4}${top_mem name 2}${alignr}${alignr}${color5}${top_mem mem 2}% 
+ ${color4}${top_mem name 3}${alignr}${alignr}${color5}${top_mem mem 3}% 
+ ${color4}${top_mem name 4}${alignr}${alignr}${color5}${top_mem mem 4}% 
+ ${color4}${top_mem name 5}${alignr}${alignr}${color5}${top_mem mem 5}% 
+ ${color4}${top_mem name 6}${alignr}${alignr}${color5}${top_mem mem 6}% 
+ ${color3}Total Used${alignr}${color5}${mem} \
 ${font}${color}
-${voffset -2}${color4}${hr 2}
+${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
 # Package updates
 ${font Roboto:size=11:weight:bold}\
- ${color3}Package Updates${alignr}${color2}${execi 1800 checkupdates | wc -l} \
+ ${color3}Package Updates${alignr}${color5}${execi 1800 checkupdates | wc -l} \
 ${font}${color}
 #
 # -----------------------------------------------------------------------------------------
