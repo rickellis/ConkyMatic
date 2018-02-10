@@ -188,7 +188,7 @@ ${image _VAR:CACHE_DIR_/forecast5.png -p 200,261 -s 35x35}\
 #
 #
 # 5 day forecast temps. Data gets pulled from the forecast json file. We use awk to round the number
-${font SourceSansPro:size=11:weight:bold}${color1}\
+${font SourceSansPro:size=11:weight:bold}${color2}\
 ${voffset 33}\
 ${goto 27}${execi  300 jq -r .query.results.channel.item.forecast[1].high _VAR:JSON_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
 ${goto 76}${execi  300 jq -r .query.results.channel.item.forecast[2].high _VAR:JSON_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
@@ -197,8 +197,8 @@ ${goto 172}${execi 300 jq -r .query.results.channel.item.forecast[4].high _VAR:J
 ${goto 222}${execi 300 jq -r .query.results.channel.item.forecast[5].high _VAR:JSON_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
 ${font}${color}
 #
-#
-${font SourceSansPro-:size=11:weight:bold}${color1}\
+# Weekday names
+${font SourceSansPro-:size=11:weight:bold}${color2}\
 ${voffset -2}\
 ${goto 25}${execi  300 jq -r  .query.results.channel.item.forecast[1].day _VAR:JSON_FILEPATH_ }\
 ${goto 71}${execi  300 jq -r  .query.results.channel.item.forecast[2].day _VAR:JSON_FILEPATH_ }\
@@ -295,5 +295,5 @@ ${font}${color}
 # -----------------------------------------------------------------------------------------
 #
 # Display the color palette
-${voffset -26}${image _VAR:COLOR_PALETTE_FILEPATH_ -p 15,972}\
+${voffset -26}${image _VAR:COLOR_PALETTE_FILEPATH_ -p 13,972}\
 ]]

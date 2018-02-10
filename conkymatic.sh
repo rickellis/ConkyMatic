@@ -1,28 +1,75 @@
 #!/usr/bin/env bash
+VERSION="1.0.0"
+#----------------------------------------------------------------------------------------
+#
+# conkymatic.sh
+#
+# Version 1.0.0
+#
+# Conky automatic color generator based on currrent wallpaper.
+#
+# by Rick Ellis
+# https://github.com/rickellis
+#
+# License: MIT
+#
+# Generates a .conkyrc file that gets colorized based on the predominant colors
+# in the current wallpaper.
+#
+# Dependencies
+#   1. ImageMagic (required). Used to generate color palettes.
+#   2. Inkscape (optional). If installed, will use it to render SVG to PNG.
+#
+# Usage: 
+#
+#   cd /path/to/ConkyMatic/
+#
+#   ./conkymatic.sh
+#
+#----------------------------------------------------------------------------------------
+# DO NOT JUST RUN THIS SCRIPT. EXAMINE THE CODE. UNDERSTAND IT. RUN IT AT YOUR OWN RISK.
+#----------------------------------------------------------------------------------------
 
 
-# URL to the Yahoo weather JSON file
-APIURL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22laramie%2C%20wy%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
+#
+# USER CONFIGURATION VARIABLES ----------------------------------------------------------
+#
+# Most of the vraiables below do not need to be changed unless you have specific needs.
+
+# Your city for weather data
+YOUR_CITY="laramie"
+
+# Your state
+YOUR_STATE="wy"
+
+# URL to the Yahoo weather JSON file. 
+# If you entered your city and state above the URL below should work by default.
+# Note: If you live outside of the U.S. you'll likely need to update the URL. Go to:
+# https://developer.yahoo.com/weather/
+APIURL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${YOUR_CITY}%2C%20${YOUR_STATE}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
 
 # Path to the current wallpaper.
 # Since I use XFCE desktop I'm running a query to get the path.
-# If you are running a different desktop this will have to be changed.
+# If you are running a different desktop you'll have to figure out how to query
+# your system to get the current wallpaper.
 WALLPAPERPATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/backdrop/screen0/monitor0/image-path)
 
-# Base URL to the directory containing the various assets
-BASEURL="${PWD}"
+# Base URL to the directory containing the various assets.
+# Do not change this unless you need a different directory structure.
+#BASEPATH="${PWD}"
+BASEPATH=$(dirname -- $(readlink -fn -- "$0"))
 
 # Template to use to create the .conkyrc file
 TEMPLFILE="default.conky"
 
 # Template directory path
-TEMPLDIR="${BASEURL}/Templates"
+TEMPLDIR="${BASEPATH}/Templates"
 
 # Name of the JSON cache file
 JSON_CACHEFILE="weather.json"
 
 # Location of cache directory.
-CACHEDIR="${BASEURL}/Cache"
+CACHEDIR="${BASEPATH}/Cache"
 
 # Folder with the SVG master images
 SVGICONS="Weather-Icons-SVG/Yahoo"
@@ -33,7 +80,7 @@ PNGICONS="Weather-Icons-PNG"
 # Size that the PNG icons should be converted to
 ICONSIZE="64"
 
-# Name of the color palette image
+# Name of the color palette imagepath/to/mufir
 COLORPIMG="colorpalette.png"
 
 # Desired width of color palette image
@@ -48,33 +95,51 @@ COLOR_BORDER="#ffffff"
 # Default weather icon color
 COLOR_ICON="#d5a70c"
 
-# Default primary text color
-COLOR_PRIMARY="#ffffff"
-
-# Default data text color
-COLOR_DATA="#6edd78"
-
-# Default accent text color
-COLOR_ACCENT="#d570ac"
-
 # Default HR color
 COLOR_HR="#ffffff"
 
-# Battery bar color
-COLOR_BAT_FULL="#86D45A"
+# Monitoring bar color
+COLOR_BARS_NORM="#86D45A"
 
-# Battery bar near empty color
-COLOR_BAT_EMPT="#fc1b0f"
+# Monitoring bar, warning color
+COLOR_BARS_WARN="#fc1b0f"
+
+# Time color
+COLOR_TIME="$ffffff"
+
+# Date color
+COLOR_DATE="$ffffff"
+
+# Weather data color
+COLOR_WEATHER="$ffffff"
+
+# Headings
+COLOR_HEADINGS="#d570ac"
+
+# Subheadings
+COLOR_SUBHEADINGS="#d570ac"
+
+# Data values
+COLOR_DATA="#6edd78"
+
+# Color extra
+COLOR_EXTRA="#d570ac"
 
 # Background transparency. Value between 0-255
 BG_TRANS="230"
-
 
 #
 # END OF USER CONFIGURATION VARIABLES ---------------------------------------------------
 #
 
-VERSION="1.0"
+
+# WELCOME MESSAGE ---------------------------------------------------------------------
+
+echo ""
+echo "-----------------------------------------------------------------------"
+echo " Welcome to ConkyMatic Version ${VERSION}"
+echo "-----------------------------------------------------------------------"
+
 
 
 # DO THE VARIOUS DIRECTORIES EXIST? -----------------------------------------------------
@@ -86,7 +151,7 @@ fi
 
 # Does the cache directory exist?
 if  ! [[ -d ${CACHEDIR} ]]; then
-    echo "The cache directory path does not exist. Aborting..."
+    echo " The cache directory path does not exist. Aborting..."
     exit 1
 fi
 
@@ -97,7 +162,7 @@ fi
 
 # Does the template directory exist?
 if  ! [[ -d ${TEMPLDIR} ]]; then
-    echo "The template directory path does not exist. Aborting..."
+    echo " The template directory path does not exist. Aborting..."
     exit 1
 fi
 
@@ -105,13 +170,13 @@ fi
 
 # Is Curl installed?
 if ! [[ $(type curl) ]]; then
-    echo "Curl does not appear to be installed. Aborting..."
+    echo " Curl does not appear to be installed. Aborting..."
     exit 1;
 fi
 
 # Is ImageMagick installed?
 if ! [[ $(type command) ]]; then
-    echo "ImageMagick does not appear to be installed. Aborting..."
+    echo " ImageMagick does not appear to be installed. Aborting..."
     exit 1;
 fi
 
@@ -122,306 +187,28 @@ if [ "$(command -v inkscape)" >/dev/null 2>&1 ]; then
     converter="Inkscape"
 fi
 
-# WELCOME MESSAGE ---------------------------------------------------------------------
+
+
+# CONSENT -------------------------------------------------------------------------------
 
 echo ""
-echo "-----------------------------------------------------------------------"
-echo "             Welcome to ConkyMatic Version ${VERSION}"
-echo "-----------------------------------------------------------------------"
+echo " Hit ENTER to begin, or any other key to abort."
+read CONSENT
 
-echo ""
-echo "Please select MODE:"
-echo "1) Automatic. Colors will be auto-selected from current wallpaper."
-echo "2) Manual. You will be prompted to enter each color hex value."
-read MODE
-
-# Validate mode. 
-if [[ ${MODE} -ne 1 && ${MODE} -ne 2 ]]; then
+# Validate mode.
+if ! [[ -z ${CONSENT} ]]; then
     echo ""
-    echo "Invalid mode. Aborting..."
+    echo " Goodbye..."
     echo ""
     exit 1
 fi
 
-
-# Manual mode
-if [[ ${MODE} -eq 2 ]]; then
-
-    # WEATHER ICON COLOR --------------------------------------------------------------------
-
-    echo ""
-    echo "Enter the WEATHER ICON color value (in hex)"
-    echo "Or hit ENTER to apply default color ${COLOR_ICON}:"
-    read R_COLOR_ICON
-
-    if [[ ${R_COLOR_ICON} != "" ]]; then
-
-        # Did they submit a valid HEX value?
-        if ! [[ $R_COLOR_ICON =~ ^[\#a-fA-F0-9]+$ ]]; then 
-            echo "The color you entered does not appear to be valid. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        # Add the # character if they omitted it from the hex color
-        if [[ ${R_COLOR_ICON:0:1} != "#" ]]; then
-            R_COLOR_ICON="#${R_COLOR_ICON}"
-        fi
-
-        # The hex color should now be 7 characters. Ex: #ffffff
-        if [[ ${#R_COLOR_ICON} -ne 7 ]]; then
-            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-            echo ""
-            exit 1
-        fi
-
-        COLOR_ICON="${R_COLOR_ICON}"
-    fi
-
-    # PRIMARY TEXT COLOR ---------------------------------------------------------------------
-
-    echo ""
-    echo "Enter the PRIMARY text color value (in hex)"
-    echo "Or hit ENTER to apply default color ${COLOR_PRIMARY}:"
-    read R_COLOR_PRIMARY
-
-    if [[ ${R_COLOR_PRIMARY} != "" ]]; then
-
-        # Did they submit a valid HEX value?
-        if ! [[ $R_COLOR_PRIMARY =~ ^[\#a-fA-F0-9]+$ ]]; then 
-            echo "The color you entered does not appear to be valid. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        # Add the # character if they omitted it from the hex color
-        if [[ ${R_COLOR_PRIMARY:0:1} != "#" ]]; then
-            R_COLOR_PRIMARY="#${R_COLOR_ACCENT}"
-        fi
-
-        # The hex color should now be 7 characters. Ex: #ffffff
-        if [[ ${#R_COLOR_PRIMARY} -ne 7 ]]; then
-            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-            echo ""
-            exit 1
-        fi
-
-        COLOR_PRIMARY="${R_COLOR_PRIMARY}"
-    fi
-
-    # ACCENT TEXT COLOR ---------------------------------------------------------------------
-
-    echo ""
-    echo "Enter the ACCENT text color value (in hex)"
-    echo "Or hit ENTER to apply default color ${COLOR_ACCENT}:"
-    read R_COLOR_ACCENT
-
-    if [[ ${R_COLOR_ACCENT} != "" ]]; then
-
-        # Did they submit a valid HEX value?
-        if ! [[ $R_COLOR_ACCENT =~ ^[\#a-fA-F0-9]+$ ]]; then 
-            echo "The color you entered does not appear to be valid. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        # Add the # character if they omitted it from the hex color
-        if [[ ${R_COLOR_ACCENT:0:1} != "#" ]]; then
-            R_COLOR_ACCENT="#${R_COLOR_ACCENT}"
-        fi
-
-        # The hex color should now be 7 characters. Ex: #ffffff
-        if [[ ${#R_COLOR_ACCENT} -ne 7 ]]; then
-            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-            echo ""
-            exit 1
-        fi
-
-        COLOR_ACCENT="${R_COLOR_ACCENT}"
-    fi
-
-    # DATA TEXT COLOR -----------------------------------------------------------------------
-
-    echo ""
-    echo "Enter the DATA text color value (in hex)"
-    echo "Or hit ENTER to apply default color ${COLOR_DATA}:"
-    read R_COLOR_DATA
-
-    if [[ ${R_COLOR_DATA} != "" ]]; then
-
-        # Did they submit a valid HEX value?
-        if ! [[ $R_COLOR_DATA =~ ^[\#a-fA-F0-9]+$ ]]; then 
-            echo "The color you entered does not appear to be valid. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        # Add the # character if they omitted it from the hex color
-        if [[ ${R_COLOR_DATA:0:1} != "#" ]]; then
-            R_COLOR_DATA="#${R_COLOR_DATA}"
-        fi
-
-        # The hex color should now be 7 characters. Ex: #ffffff
-        if [[ ${#R_COLOR_DATA} -ne 7 ]]; then
-            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-            echo ""
-            exit 1
-        fi
-
-        COLOR_DATA="${R_COLOR_DATA}"
-    fi
-
-    # HR COLOR ------------------------------------------------------------------------------
-
-    echo ""
-    echo "Enter the HORIZONTAL RULE color value (in hex)"
-    echo "Or hit ENTER to apply default color ${COLOR_HR}:"
-    read R_COLOR_HR
-
-    if [[ ${R_COLOR_HR} != "" ]]; then
-
-        # Did they submit a valid HEX value?
-        if ! [[ $R_COLOR_HR =~ ^[\#a-fA-F0-9]+$ ]]; then 
-            echo "The color you entered does not appear to be valid. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        # Add the # character if they omitted it from the hex color
-        if [[ ${R_COLOR_HR:0:1} != "#" ]]; then
-            R_COLOR_HR="#${R_COLOR_HR}"
-        fi
-
-        # The hex color should now be 7 characters. Ex: #ffffff
-        if [[ ${#R_COLOR_HR} -ne 7 ]]; then
-            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-            echo ""
-            exit 1
-        fi
-
-        COLOR_HR="${R_COLOR_HR}"
-    fi
-
-    # BORDER COLOR --------------------------------------------------------------------------
-
-    echo ""
-    echo "Enter the WINDOW BORDER color value (in hex)"
-    echo "Or hit ENTER to apply default color ${COLOR_BORDER}:"
-    read R_COLOR_BORDER
-
-    if [[ ${R_COLOR_BORDER} != "" ]]; then
-
-        # Did they submit a valid HEX value?
-        if ! [[ $R_COLOR_BORDER =~ ^[\#a-fA-F0-9]+$ ]]; then 
-            echo "The color you entered does not appear to be valid. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        # Add the # character if they omitted it from the hex color
-        if [[ ${R_COLOR_BORDER:0:1} != "#" ]]; then
-            R_COLOR_BORDER="#${R_COLOR_BORDER}"
-        fi
-
-        # The hex color should now be 7 characters. Ex: #ffffff
-        if [[ ${#R_COLOR_BORDER} -ne 7 ]]; then
-            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-            echo ""
-            exit 1
-        fi
-
-        COLOR_BORDER="${R_COLOR_BORDER}"
-    fi
-
-    # BATTERY INDICATOR COLOR ---------------------------------------------------------------
-
-    echo ""
-    echo "Enter the BATTERY INDICATOR color value (in hex)"
-    echo "Or hit ENTER to apply default color ${COLOR_BAT_FULL}:"
-    read R_COLOR_BAT_FULL
-
-    if [[ ${R_COLOR_BAT_FULL} != "" ]]; then
-
-        # Did they submit a valid HEX value?
-        if ! [[ $R_COLOR_BAT_FULL =~ ^[\#a-fA-F0-9]+$ ]]; then 
-            echo "The color you entered does not appear to be valid. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        # Add the # character if they omitted it from the hex color
-        if [[ ${R_COLOR_BAT_FULL:0:1} != "#" ]]; then
-            R_COLOR_BAT_FULL="#${R_COLOR_BAT_FULL}"
-        fi
-
-        # The hex color should now be 7 characters. Ex: #ffffff
-        if [[ ${#R_COLOR_BAT_FULL} -ne 7 ]]; then
-            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-            echo ""
-            exit 1
-        fi
-
-        COLOR_BAT_FULL="${R_COLOR_BAT_FULL}"
-    fi
-
-    # BATTERY EMPTY COLOR -------------------------------------------------------------------
-
-    echo ""
-    echo "Enter the BATTERY EMPTY INDICATOR color value (in hex)"
-    echo "Or hit ENTER to apply default color ${COLOR_BAT_EMPT}:"
-    read R_COLOR_BAT_EMPT
-
-    if [[ ${R_COLOR_BAT_EMPT} != "" ]]; then
-
-        # Did they submit a valid HEX value?
-        if ! [[ $R_COLOR_BAT_EMPT =~ ^[\#a-fA-F0-9]+$ ]]; then 
-            echo "The color you entered does not appear to be valid. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        # Add the # character if they omitted it from the hex color
-        if [[ ${R_COLOR_BAT_EMPT:0:1} != "#" ]]; then
-            R_COLOR_BAT_EMPT="#${R_COLOR_BAT_EMPT}"
-        fi
-
-        # The hex color should now be 7 characters. Ex: #ffffff
-        if [[ ${#R_COLOR_BAT_EMPT} -ne 7 ]]; then
-            echo "Your hex value isn't correct. It must be 6 characters in length, or 7 if you include the # symbol."
-            echo ""
-            exit 1
-        fi
-
-        COLOR_BAT_EMPT="${R_COLOR_BAT_EMPT}"
-    fi
-
-
-    # BACKGROUND TRANPARENCY COLOR ----------------------------------------------------------
-
-    echo ""
-    echo "Enter the BACKGROUND TRANSPARENCY value (0-255)"
-    echo "Or hit ENTER to apply default value ${BG_TRANS}:"
-    read R_BG_TRANS
-
-    if [[ ${R_BG_TRANS} != "" ]]; then
-
-        # Is the trans value within range?
-        if [[ ${R_BG_TRANS} -lt 0 || ${R_BG_TRANS} -gt 255  ]]; then
-            echo "The transparency value must be between 0 and 255. Aborting..."
-            echo ""
-            exit 1
-        fi
-
-        BG_TRANS="${R_BG_TRANS}"
-    fi
-
-fi 
-
+echo " Here we go!"
 
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
 
 echo ""
-echo "Downloading weather data"
+echo " Downloading Yahoo weather data"
 
 # Curl argumnets:
 #   -f = fail silently. Will issue error code 22
@@ -440,7 +227,7 @@ echo "${CURL}" > ${CACHEDIR}/${JSON_CACHEFILE}
 # GENERATE COLOR PALETTE PNG ------------------------------------------------------------
 
 echo ""
-echo "Exporting color palette image"
+echo " Exporting color palette based on your 16 most predominant wallpaper colors."
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
 convert ${WALLPAPERPATH} \
@@ -454,172 +241,181 @@ ${CACHEDIR}/${COLORPIMG}
 
 # GENERATE AUTOMATIC COLORS -------------------------------------------------------------
 
-# If the user selected automatic mode we need to grab the hex values from the colorpalette PNG.
-if [[ ${MODE} -eq 1 ]]; then
+echo ""
+echo " Extracting hex color values from color palette image"
 
-    echo ""
-    echo "Extracting hex values from color palette image"
+# Create a micro version of the color palette PNG: 1px x 16px 
+MICROIMG="${CACHEDIR}/micropalette.png"
 
-    # Create a micro version of the color palette PNG: 1px x 16px 
-    MICROIMG="${CACHEDIR}/micropalette.png"
-
-    convert ${CACHEDIR}/${COLORPIMG} \
-    -colors 16 \
-    -unique-colors \
-    -depth 8 \
-    -size 1x16 \
-    -geometry 16 \
-    ${MICROIMG}
+convert ${CACHEDIR}/${COLORPIMG} \
+-colors 16 \
+-unique-colors \
+-depth 8 \
+-size 1x16 \
+-geometry 16 \
+${MICROIMG}
 
 
-    # EXTRACT COLOR VAlUES --------------------------------------------------------------
+# EXTRACT COLOR VAlUES --------------------------------------------------------------
 
-    COLOR1=$(convert ${MICROIMG} -crop '1x1+0+0' txt:-)
-    # Remove newlines 
-    COLOR1=${COLOR1//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[1]=$(echo "$COLOR1" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR1=$(convert ${MICROIMG} -crop '1x1+0+0' txt:-)
+# Remove newlines 
+COLOR1=${COLOR1//$'\n'/}
+# Extract the hex color value
+COLARRAY[1]=$(echo "$COLOR1" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR2=$(convert ${MICROIMG} -crop '1x1+1+0' txt:-)
-    # Remove newlines 
-    COLOR2=${COLOR2//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[2]=$(echo "$COLOR2" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR2=$(convert ${MICROIMG} -crop '1x1+1+0' txt:-)
+# Remove newlines 
+COLOR2=${COLOR2//$'\n'/}
+# Extract the hex color value
+COLARRAY[2]=$(echo "$COLOR2" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR3=$(convert ${MICROIMG} -crop '1x1+2+0' txt:-)
-    # Remove newlines 
-    COLOR3=${COLOR3//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[3]=$(echo "$COLOR3" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR3=$(convert ${MICROIMG} -crop '1x1+2+0' txt:-)
+# Remove newlines 
+COLOR3=${COLOR3//$'\n'/}
+# Extract the hex color value
+COLARRAY[3]=$(echo "$COLOR3" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR4=$(convert ${MICROIMG} -crop '1x1+3+0' txt:-)
-    # Remove newlines 
-    COLOR4=${COLOR4//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[4]=$(echo "$COLOR4" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR4=$(convert ${MICROIMG} -crop '1x1+3+0' txt:-)
+# Remove newlines 
+COLOR4=${COLOR4//$'\n'/}
+# Extract the hex color value
+COLARRAY[4]=$(echo "$COLOR4" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR5=$(convert ${MICROIMG} -crop '1x1+4+0' txt:-)
-    # Remove newlines 
-    COLOR5=${COLOR5//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[5]=$(echo "$COLOR5" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR5=$(convert ${MICROIMG} -crop '1x1+4+0' txt:-)
+# Remove newlines 
+COLOR5=${COLOR5//$'\n'/}
+# Extract the hex color value
+COLARRAY[5]=$(echo "$COLOR5" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR6=$(convert ${MICROIMG} -crop '1x1+5+0' txt:-)
-    # Remove newlines 
-    COLOR6=${COLOR6//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[6]=$(echo "$COLOR6" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR6=$(convert ${MICROIMG} -crop '1x1+5+0' txt:-)
+# Remove newlines 
+COLOR6=${COLOR6//$'\n'/}
+# Extract the hex color value
+COLARRAY[6]=$(echo "$COLOR6" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR7=$(convert ${MICROIMG} -crop '1x1+6+0' txt:-)
-    # Remove newlines 
-    COLOR7=${COLOR7//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[7]=$(echo "$COLOR7" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR7=$(convert ${MICROIMG} -crop '1x1+6+0' txt:-)
+# Remove newlines 
+COLOR7=${COLOR7//$'\n'/}
+# Extract the hex color value
+COLARRAY[7]=$(echo "$COLOR7" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR8=$(convert ${MICROIMG} -crop '1x1+7+0' txt:-)
-    # Remove newlines 
-    COLOR8=${COLOR8//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[8]=$(echo "$COLOR8" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR8=$(convert ${MICROIMG} -crop '1x1+7+0' txt:-)
+# Remove newlines 
+COLOR8=${COLOR8//$'\n'/}
+# Extract the hex color value
+COLARRAY[8]=$(echo "$COLOR8" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR9=$(convert ${MICROIMG} -crop '1x1+8+0' txt:-)
-    # Remove newlines 
-    COLOR9=${COLOR9//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[9]=$(echo "$COLOR9" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR9=$(convert ${MICROIMG} -crop '1x1+8+0' txt:-)
+# Remove newlines 
+COLOR9=${COLOR9//$'\n'/}
+# Extract the hex color value
+COLARRAY[9]=$(echo "$COLOR9" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR10=$(convert ${MICROIMG} -crop '1x1+9+0' txt:-)
-    # Remove newlines 
-    COLOR10=${COLOR10//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[10]=$(echo "$COLOR10" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR10=$(convert ${MICROIMG} -crop '1x1+9+0' txt:-)
+# Remove newlines 
+COLOR10=${COLOR10//$'\n'/}
+# Extract the hex color value
+COLARRAY[10]=$(echo "$COLOR10" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR11=$(convert ${MICROIMG} -crop '1x1+10+0' txt:-)
-    # Remove newlines 
-    COLOR11=${COLOR11//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[11]=$(echo "$COLOR11" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR11=$(convert ${MICROIMG} -crop '1x1+10+0' txt:-)
+# Remove newlines 
+COLOR11=${COLOR11//$'\n'/}
+# Extract the hex color value
+COLARRAY[11]=$(echo "$COLOR11" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR12=$(convert ${MICROIMG} -crop '1x1+11+0' txt:-)
-    # Remove newlines 
-    COLOR12=${COLOR12//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[12]=$(echo "$COLOR12" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR12=$(convert ${MICROIMG} -crop '1x1+11+0' txt:-)
+# Remove newlines 
+COLOR12=${COLOR12//$'\n'/}
+# Extract the hex color value
+COLARRAY[12]=$(echo "$COLOR12" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR13=$(convert ${MICROIMG} -crop '1x1+12+0' txt:-)
-    # Remove newlines 
-    COLOR13=${COLOR13//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[13]=$(echo "$COLOR13" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR13=$(convert ${MICROIMG} -crop '1x1+12+0' txt:-)
+# Remove newlines 
+COLOR13=${COLOR13//$'\n'/}
+# Extract the hex color value
+COLARRAY[13]=$(echo "$COLOR13" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR14=$(convert ${MICROIMG} -crop '1x1+13+0' txt:-)
-    # Remove newlines 
-    COLOR14=${COLOR14//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[14]=$(echo "$COLOR14" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR14=$(convert ${MICROIMG} -crop '1x1+13+0' txt:-)
+# Remove newlines 
+COLOR14=${COLOR14//$'\n'/}
+# Extract the hex color value
+COLARRAY[14]=$(echo "$COLOR14" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR15=$(convert ${MICROIMG} -crop '1x1+14+0' txt:-)
-    # Remove newlines 
-    COLOR15=${COLOR15//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[15]=$(echo "$COLOR15" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR15=$(convert ${MICROIMG} -crop '1x1+14+0' txt:-)
+# Remove newlines 
+COLOR15=${COLOR15//$'\n'/}
+# Extract the hex color value
+COLARRAY[15]=$(echo "$COLOR15" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
-    COLOR16=$(convert ${MICROIMG} -crop '1x1+15+0' txt:-)
-    # Remove newlines 
-    COLOR16=${COLOR16//$'\n'/}
-    # Extract the hex color value
-    COLARRAY[16]=$(echo "$COLOR16" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLOR16=$(convert ${MICROIMG} -crop '1x1+15+0' txt:-)
+# Remove newlines 
+COLOR16=${COLOR16//$'\n'/}
+# Extract the hex color value
+COLARRAY[16]=$(echo "$COLOR16" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
 
 
-    # Delete micro image
-    rm ${MICROIMG}
+# Delete micro image
+rm ${MICROIMG}
 
-    # SET COLOR VARIABLES ---------------------------------------------------------------
+# SET COLOR VARIABLES ---------------------------------------------------------------
 
-    echo ""
-    echo "Building color map"
+echo ""
+echo " Building randomized color map"
 
-    # Background color, randomly selected from the 3 darkest colors
-    bgn=$(shuf -i 1-3 -n 1)
-    COLOR_BG="${COLARRAY[${bgn}]}"
+# All colors are randomly selected!
 
-    # Border color
-    COLOR_BORDER="${COLARRAY[12]}"
+# Background color
+RND=$(shuf -i 1-3 -n 1)
+COLOR_BG="${COLARRAY[${RND}]}"
 
-    # Weather icon color
-    COLOR_ICON="${COLARRAY[14]}"
+# Border color
+RND=$(shuf -i 5-13 -n 1)
+COLOR_BORDER="${COLARRAY[${RND}]}"
 
-    # HR color
-    COLOR_HR="${COLARRAY[10]}"
+# Weather icon color
+RND=$(shuf -i 11-16 -n 1)
+COLOR_ICON="${COLARRAY[${RND}]}"
 
-    # Bars normal
-    COLOR_BARS_NORM="${COLARRAY[12]}"
+# HR color
+RND=$(shuf -i 5-13 -n 1)
+COLOR_HR="${COLARRAY[${RND}]}"
 
-    # Bars warning
-    COLOR_BARS_WARN="${COLARRAY[11]}"
+# Bars normal
+RND=$(shuf -i 10-15 -n 1)
+COLOR_BARS_NORM="${COLARRAY[${RND}]}"
 
-    # Time color
-    COLOR_TIME="${COLARRAY[16]}"
+# Bars warning
+COLOR_BARS_WARN="${COLARRAY[16]}"
 
-    # Date color
-    COLOR_DATE="${COLARRAY[15]}"
+# Time color
+RND=$(shuf -i 12-16 -n 1)
+COLOR_TIME="${COLARRAY[${RND}]}"
 
-    # Weather data color
-    COLOR_WEATHER="${COLARRAY[13]}"
+# Date color
+RND=$(shuf -i 10-16 -n 1)
+COLOR_DATE="${COLARRAY[${RND}]}"
 
-    # Headings
-    COLOR_HEADINGS="${COLARRAY[16]}"
+# Weather data color
+RND=$(shuf -i 11-15 -n 1)
+COLOR_WEATHER="${COLARRAY[${RND}]}"
 
-    # Subheadings
-    COLOR_SUBHEADINGS="${COLARRAY[13]}"
+# Headings
+RND=$(shuf -i 8-16 -n 1)
+COLOR_HEADINGS="${COLARRAY[${RND}]}"
 
-    # Data values
-    COLOR_DATA="${COLARRAY[10]}"
+# Subheadings
+RND=$(shuf -i 8-14 -n 1)
+COLOR_SUBHEADINGS="${COLARRAY[${RND}]}"
 
-    # Color extra
-    COLOR_EXTRA="${COLARRAY[7]}"
+# Data values
+RND=$(shuf -i 7-16 -n 1)
+COLOR_DATA="${COLARRAY[${RND}]}"
 
-fi 
+# Color extra
+RND=$(shuf -i 10-16 -n 1)
+COLOR_EXTRA="${COLARRAY[${RND}]}"
+
 
 
 # COPY SVG TO TMP/DIRECTORY  ------------------------------------------------------------
@@ -629,7 +425,7 @@ TEMPDIR="/tmp/SVGCONVERT"
 
 # Copy the master svg images to the temp directory.
 # We don't want to mess with the originals.
-cp -R "${BASEURL}/${SVGICONS}" "${TEMPDIR}"
+cp -R "${BASEPATH}/${SVGICONS}" "${TEMPDIR}"
 
 
 # REPLACE COLOR IN SVG FILES ------------------------------------------------------------
@@ -644,7 +440,7 @@ done
 # CONVERT SVG TO PNG  -------------------------------------------------------------------
 
 echo ""
-echo "Exporting weather icons using $converter"
+echo " Exporting weather icons using $converter"
 echo ""
 
 
@@ -665,12 +461,12 @@ for filepath in "${TEMPDIR}"/*.svg
     if [[ $converter == "inkscape" ]]
     then
         inkscape -z -e \
-        "${BASEURL}/${PNGICONS}/${name}.png" \
+        "${BASEPATH}/${PNGICONS}/${name}.png" \
         -w "${ICONSIZE}" \
         -h "${ICONSIZE}" \
         "$filepath" \
         >/dev/null 2>&1 || { 
-                                echo "An error was encountered. Aborting...";
+                                echo " An error was encountered. Aborting...";
                                 rm -R "${TEMPDIR}";
                                 exit 1; 
                             }
@@ -680,9 +476,9 @@ for filepath in "${TEMPDIR}"/*.svg
         -density 1500 \
         -resize "${ICONSIZE}x${ICONSIZE}!" \
         "$filepath" \
-        "${BASEURL}/${PNGICONS}/${name}.png" \
+        "${BASEPATH}/${PNGICONS}/${name}.png" \
         >/dev/null 2>&1 || { 
-                                echo "An error was encountered. Aborting..."; 
+                                echo " An error was encountered. Aborting..."; 
                                 rm -R "${TEMPDIR}";
                                 exit 1;
                             }
@@ -708,12 +504,12 @@ FORECASTCODE4=$(jq .query.results.channel.item.forecast[4].code ${CACHEDIR}/${JS
 FORECASTCODE5=$(jq .query.results.channel.item.forecast[5].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
 
 # Copy the PNG image with the matching weather/forecast code number to the cache folder
-cp -f ${PNGICONS}/${CRWEATHERCODE}.png ${CACHEDIR}/weather.png
-cp -f ${PNGICONS}/${FORECASTCODE1}.png ${CACHEDIR}/forecast1.png
-cp -f ${PNGICONS}/${FORECASTCODE2}.png ${CACHEDIR}/forecast2.png
-cp -f ${PNGICONS}/${FORECASTCODE3}.png ${CACHEDIR}/forecast3.png
-cp -f ${PNGICONS}/${FORECASTCODE4}.png ${CACHEDIR}/forecast4.png
-cp -f ${PNGICONS}/${FORECASTCODE5}.png ${CACHEDIR}/forecast5.png
+cp -f ${BASEPATH}/${PNGICONS}/${CRWEATHERCODE}.png ${CACHEDIR}/weather.png
+cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE1}.png ${CACHEDIR}/forecast1.png
+cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE2}.png ${CACHEDIR}/forecast2.png
+cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE3}.png ${CACHEDIR}/forecast3.png
+cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE4}.png ${CACHEDIR}/forecast4.png
+cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE5}.png ${CACHEDIR}/forecast5.png
 
 
 
@@ -721,14 +517,14 @@ cp -f ${PNGICONS}/${FORECASTCODE5}.png ${CACHEDIR}/forecast5.png
 
 echo ""
 echo ""
-echo "Closing Conky"
+echo " Shutting down Conky"
 pkill conky
 
 
 # REPLACE TEMPLATE VARIABLES ------------------------------------------------------------
 
 echo ""
-echo "Exporting new conkyrc file"
+echo " Exporting new .conkyrc file"
 
 # Before replacing vars make a copy of the template
 cp ${TEMPLDIR}/${TEMPLFILE} ${CACHEDIR}/conkyrc
@@ -745,7 +541,7 @@ sed -i -e "s|_VAR:JSON_FILEPATH_|${CACHEDIR}/${JSON_CACHEFILE}|g" "${CACHEDIR}/c
 sed -i -e "s|_VAR:CACHE_DIR_|${CACHEDIR}|g" "${CACHEDIR}/conkyrc"
 
 # Path to PNG-Weather-Icons folder - no trailing slash
-sed -i -e "s|_VAR:WEATHER_ICONS_|${BASEURL}/${PNGICONS}|g" "${CACHEDIR}/conkyrc"
+sed -i -e "s|_VAR:WEATHER_ICONS_|${BASEPATH}/${PNGICONS}|g" "${CACHEDIR}/conkyrc"
 
 # Full /path/to/colorpalette.png
 sed -i -e "s|_VAR:COLOR_PALETTE_FILEPATH_|${CACHEDIR}/${COLORPIMG}|g" "${CACHEDIR}/conkyrc"
@@ -778,9 +574,9 @@ rm ${CACHEDIR}/conkyrc
 
 # Launch conky
 echo ""
-echo "Relaunching Conky"
+echo " Relaunching Conky"
 conky 2>/dev/null
 
 echo ""
-echo "Done!"
+echo " Done!"
 echo ""
