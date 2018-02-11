@@ -36,9 +36,6 @@ YOUR_CITY="laramie"
 # Your state
 YOUR_STATE="wy"
 
-# Template to base the .conkyrc file one
-TEMPLATE_FILENAME="default.conky"
-
 # URL to the Yahoo weather JSON file. 
 # If you entered your city and state above, the URL below should work by default.
 # Note: If you live outside of the U.S. you'll likely need to update the URL.
@@ -89,7 +86,7 @@ echo ""
 echo "-----------------------------------------------------------------------"
 echo " Welcome to ConkyMatic Version ${VERSION}"
 echo "-----------------------------------------------------------------------"
-
+echo ""
 
 # DO THE VARIOUS DIRECTORIES SPECIFIED ABOVE EXIST?
 
@@ -101,6 +98,7 @@ fi
 # Does the cache directory exist?
 if  ! [[ -d ${CACHE_DIRECTORY} ]]; then
     echo " The cache directory path does not exist. Aborting..."
+    echo ""
     exit 1
 fi
 
@@ -112,6 +110,7 @@ fi
 # Does the template directory exist?
 if  ! [[ -d ${TEMPLATE_DIRECTORY} ]]; then
     echo " The template directory path does not exist. Aborting..."
+    echo ""
     exit 1
 fi
 
@@ -134,6 +133,7 @@ fi
 # Does the PNG directory exist?
 if  ! [[ -d ${WEATHER_ICONS_PNG_DIRECTORY} ]]; then
     echo " The PNG directory path does not exist. Aborting..."
+    echo ""
     exit 1
 fi
 
@@ -142,12 +142,14 @@ fi
 # Is Curl installed?
 if ! [[ $(type curl) ]]; then
     echo " Curl does not appear to be installed. Aborting..."
+    echo ""
     exit 1;
 fi
 
 # Is ImageMagick installed?
 if ! [[ $(type command) ]]; then
     echo " ImageMagick does not appear to be installed. Aborting..."
+    echo ""
     exit 1;
 fi
 
@@ -158,18 +160,102 @@ if [ "$(command -v inkscape)" >/dev/null 2>&1 ]; then
     converter="Inkscape"
 fi
 
+# TEMPLATE VALIDATION -------------------------------------------------------------------
+
+# Build an array with all the templates
+i=0
+declare -A TMPL_ARRAY
+for file in ${TEMPLATE_DIRECTORY}/*.conky; do
+    if [ -f "$file" ]; then
+        TMPL_ARRAY[${i}]="$file"
+        ((i++))
+    fi
+done
+
+# How many templates are in the directory?
+TMPLN="${#TMPL_ARRAY[@]}"
+
+# If template directory is empty admonish them harshly
+if [[ ${TMPLN} == 0 ]]; then
+    echo "There are no conky templates in the Templates directory. Aborting..."
+    echo ""
+    exit 1
+fi
+
+
 # CONSENT -------------------------------------------------------------------------------
 
-echo ""
 echo " Hit ENTER to begin, or any other key to abort"
 read CONSENT
 
-# Validate mode.
+# Validate consent
 if ! [[ -z ${CONSENT} ]]; then
     echo ""
     echo " Goodbye..."
     echo ""
     exit 1
+fi
+
+# SELECT A TEMPLATE ---------------------------------------------------------------------
+
+# If there is only one template there's no reason to have them select it
+if [[ ${TMPLN} == 1 ]]; then
+        
+    # Set the template
+    TEMPLATE_SELECTION="${TMPL_ARRAY[0]}"
+
+    # Multiple templates
+else
+    echo ""
+    echo " Please select the template NUMBER you would like to use."
+    echo " Or hit ENTER to select default.conky:"
+
+    i=1
+    for tmpl in ${TMPL_ARRAY[@]}; do
+        filename="${tmpl##*/}"
+        echo " [${i}] $filename"
+        ((i++))
+    done
+
+    read CHOICE
+
+    # If they hit enter we use the default
+    if [[ -z ${CHOICE} ]]; then
+
+        TEMPLATE_SELECTION="${TEMPLATE_DIRECTORY}/default.conky"
+
+        # Does the default exist?
+        if ! [ -e ${TEMPLATE_SELECTION} ]; then
+            echo ""
+            echo " Unable to find the default template"
+            echo " The quick selection feature requires Templates/default.conky"
+            echo " Aborting..."
+            echo ""
+            exit 1
+        fi
+    else # They entered a value
+
+        # Did they enter an integer?
+        if [[ $CHOICE =~ ^?[0-9]+$ ]]; then
+            echo ""
+            echo " You did not select a valid template number. Aborting..."
+            echo ""
+            exit 1
+        fi
+
+        # Subtract 1 from the choice since our array is indexed starting at zero
+        CHOICE=$(( CHOICE-1 ))
+
+        TEMPLATE_SELECTION="${TMPL_ARRAY[${CHOICE}]}"
+
+        # Does the choice exist?
+        if ! [ -e ${TEMPLATE_SELECTION} ]; then
+            echo ""
+            echo " The choice you entered does not correlate to a template. Aborting..."
+            echo " Aborting..."
+            exit 1
+        fi
+    fi
 fi
 
 echo " Here we go!"
@@ -224,14 +310,13 @@ convert ${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG} \
 -geometry 16 \
 ${MICROIMG}
 
-
 # EXTRACT COLOR VAlUES --------------------------------------------------------------
 
-# Although ImageMagick allows you to extract all the image colors in one acction, 
+# Although ImageMagick allows you to extract all the image colors in one action, 
 # the colors are sorted alphabetically, not from dark to light as they are when
 # the color palette image is created. I ended up having to extract each color value 
 # based on the x/y coordinates of the micropalette image. At some point I'd like to
-# revisit this code and see if I can find a more graceful way to accomplish this.
+# revisit this code to see if I can find a more graceful way to accomplish this.
 
 COLOR1=$(convert ${MICROIMG} -crop '1x1+0+0' txt:-)
 # Remove newlines 
@@ -267,7 +352,7 @@ COLOR6=$(convert ${MICROIMG} -crop '1x1+5+0' txt:-)
 # Remove newlines 
 COLOR6=${COLOR6//$'\n'/}
 # Extract the hex color value
-COLARRAY[6]=$(echo "$COLOR6" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')
+COLARRAY[6]=$(echo "$COLOR6" | sed 's/.*[[:space:]]\(#[a-zA-Z0-9]\+\)[[:space:]].*/\1/')Conky
 
 COLOR7=$(convert ${MICROIMG} -crop '1x1+6+0' txt:-)
 # Remove newlines 
@@ -338,72 +423,72 @@ rm ${MICROIMG}
 echo ""
 echo " Building a randomized color map"
 
-# All colors are randomly selected!
+# All colors are randomly selected from a range. We can't have complete
+# randomization otherwize the conky might be unreadable, so we make it
+# random within an acceptable range. The full color range is from 1 to 16.
 
-# Background color
-RND=$(shuf -i 1-3 -n 1)
+# Background color. We select from the darkest 4 colors.
+RND=$(shuf -i 1-4 -n 1)
 COLOR_BACKGROUND="${COLARRAY[${RND}]}"
 
-# Border color
+# Border color. Select from all but the darkst 5
 RND=$(shuf -i 5-13 -n 1)
 COLOR_BORDER="${COLARRAY[${RND}]}"
 
-# Weather icon color
+# Weather icon color. Mostly light colors
 RND=$(shuf -i 12-16 -n 1)
 COLOR_ICON="${COLARRAY[${RND}]}"
 
-# HR color
+# HR color. Midrange and light colors
 RND=$(shuf -i 7-13 -n 1)
 COLOR_HR="${COLARRAY[${RND}]}"
 
-# Bars normal
+# Bars normal. Mid high to light colors.
 RND=$(shuf -i 10-16 -n 1)
 COLOR_BARS_NORM="${COLARRAY[${RND}]}"
 
 # Bars warning
-# COLOR_BARS_WARN="${COLARRAY[16]}"
-# Make this red since it's only used for a depleted battery.
+# Hard code this red
 COLOR_BARS_WARN="#fc1b0f"
 
-# Time color
+# Time color. Mostly ligth colors
 RND=$(shuf -i 12-16 -n 1)
 COLOR_TIME="${COLARRAY[${RND}]}"
 
-# Date color
+# Date color. Mid high to light.
 RND=$(shuf -i 11-16 -n 1)
 COLOR_DATE="${COLARRAY[${RND}]}"
 
-# Weather data color
+# Weather data color. Light colors.
 RND=$(shuf -i 12-16 -n 1)
 COLOR_WEATHER="${COLARRAY[${RND}]}"
 
-# Headings
+# Headings. Mid high to light
 RND=$(shuf -i 9-16 -n 1)
 COLOR_HEADING="${COLARRAY[${RND}]}"
 
-# Subheadings
-RND=$(shuf -i 9-13 -n 1)
+# Subheadings. Mid high to light
+RND=$(shuf -i 9-15 -n 1)
 COLOR_SUBHEADING="${COLARRAY[${RND}]}"
 
-# Data values
+# Data values. Mid to light colors.
 RND=$(shuf -i 8-16 -n 1)
 COLOR_DATA="${COLARRAY[${RND}]}"
 
-# Color extra
-RND=$(shuf -i 4-16 -n 1)
+# Color text. Mid to high
+RND=$(shuf -i 8-16 -n 1)
 COLOR_TEXT="${COLARRAY[${RND}]}"
 
 
-# COPY SVG TO TMP/DIRECTORY  ------------------------------------------------------------
+# COPY SVG ICONS TO TMP/DIRECTORY  ------------------------------------------------------
 # We do this because we need to open each SVG and replace the color value. 
 # No reason to mess with the originals.
 
-# Name of the directory that we will copy the SVGs to.
+# Path to directory that we copy the SVGs to.
 TEMPDIR="/tmp/SVGCONVERT"
 
 # Copy the master SVG images to the temp directory.
 cp -R "${WEATHER_ICONS_SVG_DIRECTORY}" "${TEMPDIR}"
-
 
 # REPLACE COLOR IN SVG FILES ------------------------------------------------------------
 
@@ -474,6 +559,10 @@ rm -R "${TEMPDIR}"
 # These are the icons that get displayed in the conky. They get regenerated
 # every five minutes via code in the conky itself
 
+echo ""
+echo ""
+echo " Caching the current weather and forecast icons"
+
 # Fetch the weather and forecast codes from the JSON file.
 # These will get matchedd to a PNG image with the same name below.
 CRWEATHERCODE=$(jq .query.results.channel.item.condition.code ${CACHE_DIRECTORY}/${JSON_CACHE_FILE} | grep -oP '"\K[^"\047]+(?=["\047])')
@@ -484,21 +573,12 @@ FORECASTCODE4=$(jq .query.results.channel.item.forecast[4].code ${CACHE_DIRECTOR
 FORECASTCODE5=$(jq .query.results.channel.item.forecast[5].code ${CACHE_DIRECTORY}/${JSON_CACHE_FILE} | grep -oP '"\K[^"\047]+(?=["\047])')
 
 # Copy the PNG image with the matching weather/forecast code number to the cache folder
-cp -f ${PNGWEATHER_ICONS_PNG_DIRECTORYDIR}/${CRWEATHERCODE}.png ${CACHE_DIRECTORY}/weather.png
+cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${CRWEATHERCODE}.png ${CACHE_DIRECTORY}/weather.png
 cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE1}.png ${CACHE_DIRECTORY}/forecast1.png
 cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE2}.png ${CACHE_DIRECTORY}/forecast2.png
 cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE3}.png ${CACHE_DIRECTORY}/forecast3.png
 cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE4}.png ${CACHE_DIRECTORY}/forecast4.png
 cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE5}.png ${CACHE_DIRECTORY}/forecast5.png
-
-
-# KILL CONKY IF IT'S RUNNING ------------------------------------------------------------
-
-echo ""
-echo ""
-echo " Shutting down Conky"
-pkill conky
-
 
 # REPLACE TEMPLATE VARIABLES ------------------------------------------------------------
 # Now it's time to insert the randomly gathered color values into the template
@@ -507,7 +587,7 @@ echo ""
 echo " Inserting color values into the conky template"
 
 # Before replacing vars make a copy of the template
-cp ${TEMPLATE_DIRECTORY}/${TEMPLATE_FILENAME} ${CACHE_DIRECTORY}/conkyrc
+cp ${TEMPLATE_SELECTION} ${CACHE_DIRECTORY}/conkyrc
 
 # API URL
 # Escape ampersands before running sed
@@ -541,7 +621,11 @@ sed -i -e "s|_VAR:COLOR_DATA_|${COLOR_DATA}|g" "${CACHE_DIRECTORY}/conkyrc"
 sed -i -e "s|_VAR:COLOR_TEXT_|${COLOR_TEXT}|g" "${CACHE_DIRECTORY}/conkyrc"
 
 
-# CLEANUP -------------------------------------------------------------------------------
+# REPLACE CONKYRC FILE AND RELAUNCH -----------------------------------------------------
+
+echo ""
+echo " Shutting down Conky"
+pkill conky
 
 echo ""
 echo " Exporting new .conkyrc file"
@@ -549,13 +633,13 @@ echo " Exporting new .conkyrc file"
 # Copy conkyrc file to its proper location
 cp ${CACHE_DIRECTORY}/conkyrc ~/.conkyrc
 
-# Remove the temp file
-rm ${CACHE_DIRECTORY}/conkyrc
-
 # Launch conky
 echo ""
 echo " Relaunching Conky"
 conky 2>/dev/null
+
+# Remove the temporary template file
+rm ${CACHE_DIRECTORY}/conkyrc
 
 echo ""
 echo " Done!"

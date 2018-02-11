@@ -25,6 +25,8 @@ The entires sequence takes the script about 10 seconds, making it very fast and 
 
 * __ImageMagick__ to generate the color palette PNG and weather icons. You can install ImageMagick using your preferred package manager. __Note:__ If you have __Inkscape__ is installed, ConkyMatic will use it for the weather icon rendering since it has better SVG handling. However, ImageMagick is still necessary for the palette generation.
 
+* __Curl__ to download JSON weather data. You can install Curl using your preferred package manager.
+
 * __XFCE Desktop__. The script should work regardless of the desktop environment you use. However, you'll have to update the __WALLPAPERPATH__ config variable near the top of the __conkymatic.sh__ script with a query that retrieves the wallpaper on your system.
 
 ## Installation and Usage.
@@ -37,6 +39,8 @@ __Important:__ Before running ConkyMatic make a backup copy of your .conkyrc fil
 In the __Templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some variables that get replaced with the color values from the script. A list of available variables can be found below.
 
 Additional templates can be created and added to the __Templates__ folder. If more than one template is in the folder, when you run the __conkymatic.sh__ script via your terminal you'll be given a choice of templates. Hitting __ENTER__ in the terminal will auto-select the template named __default.conky__, or you can type the name of the one you prefer to run.
+
+__IMPORTANT:__ all templates must be named with the __.conky__ file extension: Example: foobar.conky
 
 ## ConkyMatic Terminal Alias
 To make running the script faster you can add the following alias to your __.bashrc__ file, and then just enter __conkymatic__ from your terminal.
