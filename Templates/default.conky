@@ -73,29 +73,26 @@ xftalpha = 1,								-- alpha of the xft font - between 0-1
 --Windows
 
 own_window = true,							-- create your own window to draw
-own_window_argb_value = _VAR:BG_TRANS_,			    -- real transparency - composite manager required 0-255
+own_window_argb_value =230,			        -- real transparency - composite manager required 0-255
 own_window_argb_visual = true,				-- use ARGB - composite manager required
 own_window_class = 'Conky',					-- manually set the WM_CLASS name for use with xprop
-own_window_colour = '_VAR:COLOR_BG_',	            -- set colour if own_window_transparent no
 own_window_hints = 'undecorated,below,above,sticky,skip_taskbar,skip_pager',  -- if own_window true - just hints - own_window_type sets it
 own_window_transparent = false,				-- if own_window_argb_visual is true sets background opacity 0%
 own_window_title = 'system_conky',			-- set the name manually  - default conky "hostname"
 own_window_type = 'normal',				    -- if own_window true options are: normal/override/dock/desktop/panel
-
---Colors
 
 color0 = '_VAR:COLOR_TIME_',                         --time
 color1 = '_VAR:COLOR_DATE_',                         --date
 color2 = '_VAR:COLOR_WEATHER_',                         --weather data
 color3 = '_VAR:COLOR_HEADINGS_',                         --headings
 color4 = '_VAR:COLOR_SUBHEADINGS_',                         --subheadings
-color5 = '_VAR:COLOR_DATA_',                         --data
+color5 = '_VAR:COLOR_TEXT_',                         --data
+color6 = '_VAR:COLOR_DATA_',
 color7 = '_VAR:COLOR_HR_',                         --hr color
 color8 = '_VAR:COLOR_BARS_NORM_',                         --bars normal
 color9 = '_VAR:COLOR_BARS_WARN_',                         --bars warning
-
 default_color = '_VAR:COLOR_BORDER_',                  -- default color and window border color
-
+own_window_colour = '_VAR:COLOR_BG_',	            -- set colour if own_window_transparent no
 
 
 
@@ -215,7 +212,7 @@ ${voffset -5}${color7}${hr 2}
  ${font Roboto:size=11:weight:bold}\
 ${if_match ${battery_percent} < 20}\
 ${color9}${battery_bar 10,134 BAT0}    ${color3}BAT${alignr}${color9}${battery_percent}%\
-${else}${color8}${battery_bar 10,134 BAT0}   ${color3}BAT  ${alignr}${color5}${battery_percent}%\
+${else}${color8}${battery_bar 10,134 BAT0}   ${color3}BAT  ${alignr}${color6}${battery_percent}%\
 ${endif}\
 ${font}
 #
@@ -224,14 +221,14 @@ ${font}
  ${font Roboto:size=11:weight:bold}\
 ${color8}${cpubar cpu0 10,134}   \
 ${color3}CPU\
-${alignr}${color5}${cpu cpu0}% \
+${alignr}${color6}${cpu cpu0}% \
 ${font}
 #
 # RAM bar
  ${font Roboto:size=11:weight:bold}\
 ${color8}${membar 10,134}   \
 ${color3}RAM$\
-{alignr}${color5}${memperc}% \
+{alignr}${color6}${memperc}% \
 ${font}
 ${voffset -5}${color7}${hr 2}
 #
@@ -239,8 +236,8 @@ ${voffset -5}${color7}${hr 2}
 #
 # Used and free space on root, home, and swap
 ${voffset -2}${font Roboto:size=11:weight:bold}\
- ${color3}${fs_used} Used ${alignr}${color5}${fs_free} Free \
-#${color3}Home ${offset 15}${color1}${fs_used /home} Used ${alignr}${color5}${fs_free /home} Free 
+ ${color3}${fs_used} Used ${alignr}${color6}${fs_free} Free \
+#${color3}Home ${offset 15}${color1}${fs_used /home} Used ${alignr}${color6}${fs_free /home} Free 
 ${font}${color}
 ${voffset -2}${color7}${hr 2}
 #
@@ -248,11 +245,11 @@ ${voffset -2}${color7}${hr 2}
 #
 # Uptime, CPU temp, CPU frequency, fan speed
 ${voffset -2}${font Roboto:size=11:weight:bold}\
- ${color3}Uptime ${alignr}${color5} $uptime_short 
- ${color3}Processes${alignr}${color5}${processes} 
+ ${color3}Uptime ${alignr}${color6} $uptime_short 
+ ${color3}Processes${alignr}${color6}${processes} 
 ${color7}${hr 2}
- ${color3}CPU Temp ${alignr}${color5}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
- ${color3}Fan Speed ${alignr}${color5}${freq_g} RPM \
+ ${color3}CPU Temp ${alignr}${color6}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
+ ${color3}Fan Speed ${alignr}${color6}${freq_g} RPM \
 ${font}${color}
 ${voffset -2}${color7}${hr 2}
 #
@@ -260,13 +257,13 @@ ${voffset -2}${color7}${hr 2}
 #
 # CPU usage. Top 6 processes
 ${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
- CPU${alignr}${color5}Intel i7 
- ${color4}${top name 1}${alignr}${color5}${top cpu 1}% 
- ${color4}${top name 2}${alignr}${color5}${top cpu 2}% 
- ${color4}${top name 3}${alignr}${color5}${top cpu 3}% 
- ${color4}${top name 4}${alignr}${color5}${top cpu 4}% 
- ${color4}${top name 5}${alignr}${color5}${top cpu 5}% 
- ${color4}${top name 6}${alignr}${color5}${top cpu 6}% \
+ CPU${alignr}${color6}Intel i7 
+ ${color4}${top name 1}${alignr}${color6}${top cpu 1}% 
+ ${color4}${top name 2}${alignr}${color6}${top cpu 2}% 
+ ${color4}${top name 3}${alignr}${color6}${top cpu 3}% 
+ ${color4}${top name 4}${alignr}${color6}${top cpu 4}% 
+ ${color4}${top name 5}${alignr}${color6}${top cpu 5}% 
+ ${color4}${top name 6}${alignr}${color6}${top cpu 6}% \
 ${font}${color}
 ${voffset -2}${color7}${hr 2}
 #
@@ -274,14 +271,14 @@ ${voffset -2}${color7}${hr 2}
 #
 # Memory usage. Top 6 applications
 ${voffset -2}${font Roboto:size=11:weight:bold}\
- ${color3}Memory${alignr}${color5}${memmax}  
- ${color4}${top_mem name 1}${alignr}${alignr}${color5}${top_mem mem 1}% 
- ${color4}${top_mem name 2}${alignr}${alignr}${color5}${top_mem mem 2}% 
- ${color4}${top_mem name 3}${alignr}${alignr}${color5}${top_mem mem 3}% 
- ${color4}${top_mem name 4}${alignr}${alignr}${color5}${top_mem mem 4}% 
- ${color4}${top_mem name 5}${alignr}${alignr}${color5}${top_mem mem 5}% 
- ${color4}${top_mem name 6}${alignr}${alignr}${color5}${top_mem mem 6}% 
- ${color3}Total Used${alignr}${color5}${mem} \
+ ${color3}Memory${alignr}${color6}${memmax}  
+ ${color4}${top_mem name 1}${alignr}${alignr}${color6}${top_mem mem 1}% 
+ ${color4}${top_mem name 2}${alignr}${alignr}${color6}${top_mem mem 2}% 
+ ${color4}${top_mem name 3}${alignr}${alignr}${color6}${top_mem mem 3}% 
+ ${color4}${top_mem name 4}${alignr}${alignr}${color6}${top_mem mem 4}% 
+ ${color4}${top_mem name 5}${alignr}${alignr}${color6}${top_mem mem 5}% 
+ ${color4}${top_mem name 6}${alignr}${alignr}${color6}${top_mem mem 6}% 
+ ${color3}Total Used${alignr}${color6}${mem} \
 ${font}${color}
 ${voffset -2}${color7}${hr 2}
 #
@@ -289,7 +286,7 @@ ${voffset -2}${color7}${hr 2}
 #
 # Package updates
 ${font Roboto:size=11:weight:bold}\
- ${color3}Package Updates${alignr}${color5}${execi 1800 checkupdates | wc -l} \
+ ${color3}Package Updates${alignr}${color6}${execi 1800 checkupdates | wc -l} \
 ${font}${color}
 #
 # -----------------------------------------------------------------------------------------

@@ -50,9 +50,6 @@ APIURL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.
 # out how to query your system to get the current wallpaper.
 WALLPAPERPATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/backdrop/screen0/monitor0/image-path)
 
-# Background transparency. Value between 0-255
-BG_TRANS="230"
-
 # Base URL to the directory containing the various assets.
 # Do not change this unless you need a different directory structure.
 #BASEPATH="${PWD}"
@@ -124,11 +121,12 @@ COLOR_HEADINGS="#d570ac"
 # Subheadings
 COLOR_SUBHEADINGS="#d570ac"
 
+# Color text
+COLOR_TEXT="#d570ac"
+
 # Data values
 COLOR_DATA="#6edd78"
 
-# Color extra
-COLOR_EXTRA="#d570ac"
 
 #
 # END OF USER CONFIGURATION VARIABLES
@@ -440,7 +438,7 @@ COLOR_DATA="${COLARRAY[${RND}]}"
 
 # Color extra
 RND=$(shuf -i 4-16 -n 1)
-COLOR_EXTRA="${COLARRAY[${RND}]}"
+COLOR_TEXT="${COLARRAY[${RND}]}"
 
 
 # COPY SVG TO TMP/DIRECTORY  ------------------------------------------------------------
@@ -575,9 +573,6 @@ sed -i -e "s|_VAR:WEATHER_ICONS_|${PNGDIR}|g" "${CACHEDIR}/conkyrc"
 # Full /path/to/colorpalette.png
 sed -i -e "s|_VAR:COLOR_PALETTE_FILEPATH_|${CACHEDIR}/${COLORPIMG}|g" "${CACHEDIR}/conkyrc"
 
-# Transparency value
-sed -i -e "s|_VAR:BG_TRANS_|${BG_TRANS}|g" "${CACHEDIR}/conkyrc"
-
 # Colors
 sed -i -e "s|_VAR:COLOR_BG_|${COLOR_BG}|g" "${CACHEDIR}/conkyrc"
 sed -i -e "s|_VAR:COLOR_HR_|${COLOR_HR}|g" "${CACHEDIR}/conkyrc"
@@ -590,7 +585,7 @@ sed -i -e "s|_VAR:COLOR_WEATHER_|${COLOR_WEATHER}|g" "${CACHEDIR}/conkyrc"
 sed -i -e "s|_VAR:COLOR_HEADINGS_|${COLOR_HEADINGS}|g" "${CACHEDIR}/conkyrc"
 sed -i -e "s|_VAR:COLOR_SUBHEADINGS_|${COLOR_SUBHEADINGS}|g" "${CACHEDIR}/conkyrc"
 sed -i -e "s|_VAR:COLOR_DATA_|${COLOR_DATA}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_EXTRA_|${COLOR_EXTRA}|g" "${CACHEDIR}/conkyrc"
+sed -i -e "s|_VAR:COLOR_TEXT_|${COLOR_TEXT}|g" "${CACHEDIR}/conkyrc"
 
 
 # CLEANUP -------------------------------------------------------------------------------

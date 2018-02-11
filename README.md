@@ -6,7 +6,7 @@
 
 * Creates a 16 color palette image from the current wallpaper (see the bottom of the Conky in the images).
 
-* Extracts the hex color value of each of the 16 images.
+* Extracts the hex color value of each of the 16 images in the color palette.
 
 * Generates a .conkyrc file using colors randomly selected from that palette. 
 
@@ -18,13 +18,23 @@ The entires sequence takes the script about 10 seconds, making it very fast and 
 
 ### [YouTube Video](https://youtu.be/sq9HvFkPffM)
 
-<img src="https://i.imgur.com/Za81gmK.png" />
-
-
 ## Requirements
-* A Linux installation with Conky installed.
+* A __Linux__ installation with __Conky__ installed.
 
-* ImageMagick to generate the color palette PNG and weather icons. Note: If Inkscape is installed ConkyMatic will use it for the weather icon rendering since it has better SVG handling than ImageMagic.
+* __ImageMagick__ to generate the color palette PNG and weather icons. You can install ImageMagick using your preferred package manager. __Note:__ If you have __Inkscape__ is installed, ConkyMatic will use it for the weather icon rendering since it has better SVG handling. However, ImageMagick is still necessary for the palette generation.
+
+* __XFCE Desktop__. The script should work regardless of the desktop environment you use. However, you'll have to update the __WALLPAPERPATH__ config variable near the top of the conkymatic.sh script with a query that retrieves the wallpaper on your system.
+
+## Installation and Usage.
+Pretty simple. Just clone the package, update the config variables at the top of __conkymatic.sh__, and run the script.
+
+__Important:__ Before running ConkyMatic make a backup copy of your .conkyrc file since it will get overwritten. 
+
+## Customization
+In the __templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some variables that get replaced with the color values from the script.
+
+
+<img src="https://i.imgur.com/Za81gmK.png" />
 
 
 
