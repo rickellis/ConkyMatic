@@ -34,9 +34,9 @@ __Important:__ Before running ConkyMatic make a backup copy of your .conkyrc fil
 
 
 ## Customization
-In the __templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some variables that get replaced with the color values from the script. A list of available variables can be found below.
+In the __Templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some variables that get replaced with the color values from the script. A list of available variables can be found below.
 
-Additional templates can be added to the __Templates__ folder. If more than one template is in the folder, when you run the __conkymatic.sh__ script via your terminal you'll be given a choice of templates
+Additional templates can be created and added to the __Templates__ folder. If more than one template is in the folder, when you run the __conkymatic.sh__ script via your terminal you'll be given a choice of templates. Hitting __ENTER__ in the terminal will auto-select the template named __default.conky__, or you can type the name of the one you prefer to run.
 
 ## ConkyMatic Terminal Alias
 To make running the script faster you can add the following alias to your __.bashrc__ file:
