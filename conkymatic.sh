@@ -37,96 +37,49 @@ YOUR_CITY="laramie"
 YOUR_STATE="wy"
 
 # Template to base the .conkyrc file one
-TEMPLFILE="default.conky"
+TEMPLATE_FILENAME="default.conky"
 
 # URL to the Yahoo weather JSON file. 
 # If you entered your city and state above, the URL below should work by default.
 # Note: If you live outside of the U.S. you'll likely need to update the URL.
 # Go to: https://developer.yahoo.com/weather/
-APIURL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${YOUR_CITY}%2C%20${YOUR_STATE}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
+WEATHER_API_URL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${YOUR_CITY}%2C%20${YOUR_STATE}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
 
 # Path to the current wallpaper.
 # If you are running a different desktop than XFCE you'll have to figure
 # out how to query your system to get the current wallpaper.
-WALLPAPERPATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/backdrop/screen0/monitor0/image-path)
+WALLPAPER_PATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/backdrop/screen0/monitor0/image-path)
 
-# Base URL to the directory containing the various assets.
+# Basepath to the directory containing the various assets.
 # Do not change this unless you need a different directory structure.
 #BASEPATH="${PWD}"
 BASEPATH=$(dirname -- $(readlink -fn -- "$0"))
 
 # Name of the JSON cache file
-JSON_CACHEFILE="weather.json"
+JSON_CACHE_FILE="weather.json"
 
 # Template directory path
-TEMPLDIR="${BASEPATH}/Templates"
+TEMPLATE_DIRECTORY="${BASEPATH}/Templates"
 
 # Location of cache directory.
-CACHEDIR="${BASEPATH}/Cache"
-
-# Folder with the SVG master images
-SVGICONS="Weather-Icons-SVG/Yahoo"
+CACHE_DIRECTORY="${BASEPATH}/Cache"
 
 # Full path to the SVG icons
-SVGDIR="${BASEPATH}/${SVGICONS}"
-
-# Folder where the PNG images will be copied to
-PNGICONS="Weather-Icons-PNG"
+WEATHER_ICONS_SVG_DIRECTORY="${BASEPATH}/Weather-Icons-SVG/Yahoo"
 
 # Full path to the PNG icon folder
-PNGDIR="${BASEPATH}/${PNGICONS}"
+WEATHER_ICONS_PNG_DIRECTORY="${BASEPATH}/Weather-Icons-PNG"
 
-# Size that the PNG icons should be converted to
-ICONSIZE="64"
+# Size that the PNG icons should be converted to.
+# Note: In the .conkyrc file you can set the size of each image.
+# Just make the size here larger than what you anticipate using.
+ICON_SIZE="64"
 
-# Name of the color palette imagepath/to/mufir
-COLORPIMG="colorpalette.png"
+# Name of the color palette image
+COLOR_PALETTE_IMG="colorpalette.png"
 
 # Desired width of color palette image
-COLORPWIDTH="224"
-
-# These color values aren't used since the script sets them automatically.
-# Changing them won't affect anything.
-
-# Default background color
-COLOR_BG="#000000"
-
-# Default border color
-COLOR_BORDER="#ffffff"
-
-# Default weather icon color
-COLOR_ICON="#d5a70c"
-
-# Default HR color
-COLOR_HR="#ffffff"
-
-# Monitoring bar color
-COLOR_BARS_NORM="#86D45A"
-
-# Monitoring bar, warning color
-COLOR_BARS_WARN="#fc1b0f"
-
-# Time color
-COLOR_TIME="$ffffff"
-
-# Date color
-COLOR_DATE="$ffffff"
-
-# Weather data color
-COLOR_WEATHER="$ffffff"
-
-# Headings
-COLOR_HEADINGS="#d570ac"
-
-# Subheadings
-COLOR_SUBHEADINGS="#d570ac"
-
-# Color text
-COLOR_TEXT="#d570ac"
-
-# Data values
-COLOR_DATA="#6edd78"
-
+COLOR_PALETTE_WIDTH="224"
 
 #
 # END OF USER CONFIGURATION VARIABLES
@@ -141,45 +94,45 @@ echo "-----------------------------------------------------------------------"
 # DO THE VARIOUS DIRECTORIES SPECIFIED ABOVE EXIST?
 
 # Remove the trailing slash from the cache directory path
-if [[ ${CACHEDIR} =~ .*/$ ]]; then
-    CACHEDIR="${CACHEDIR:0:-1}"
+if [[ ${CACHE_DIRECTORY} =~ .*/$ ]]; then
+    CACHE_DIRECTORY="${CACHE_DIRECTORY:0:-1}"
 fi
 
 # Does the cache directory exist?
-if  ! [[ -d ${CACHEDIR} ]]; then
+if  ! [[ -d ${CACHE_DIRECTORY} ]]; then
     echo " The cache directory path does not exist. Aborting..."
     exit 1
 fi
 
 # Remove the trailing slash from the template directory path
-if [[ ${TEMPLDIR} =~ .*/$ ]]; then
-    TEMPLDIR="${TEMPLDIR:0:-1}"
+if [[ ${TEMPLATE_DIRECTORY} =~ .*/$ ]]; then
+    TEMPLATE_DIRECTORY="${TEMPLATE_DIRECTORY:0:-1}"
 fi
 
 # Does the template directory exist?
-if  ! [[ -d ${TEMPLDIR} ]]; then
+if  ! [[ -d ${TEMPLATE_DIRECTORY} ]]; then
     echo " The template directory path does not exist. Aborting..."
     exit 1
 fi
 
 # Remove the trailing slash from the SVG directory path
-if [[ ${SVGDIR} =~ .*/$ ]]; then
-    SVGDIR="${SVGDIR:0:-1}"
+if [[ ${WEATHER_ICONS_SVG_DIRECTORY} =~ .*/$ ]]; then
+    WEATHER_ICONS_SVG_DIRECTORY="${WEATHER_ICONS_SVG_DIRECTORY:0:-1}"
 fi
 
 # Does the SVG directory exist?
-if  ! [[ -d ${SVGDIR} ]]; then
+if  ! [[ -d ${WEATHER_ICONS_SVG_DIRECTORY} ]]; then
     echo " The SVG directory path does not exist. Aborting..."
     exit 1
 fi
 
 # Remove the trailing slash from the PNG directory path
-if [[ ${PNGDIR} =~ .*/$ ]]; then
-    PNGDIR="${PNGDIR:0:-1}"
+if [[ ${WEATHER_ICONS_PNG_DIRECTORY} =~ .*/$ ]]; then
+    WEATHER_ICONS_PNG_DIRECTORY="${WEATHER_ICONS_PNG_DIRECTORY:0:-1}"
 fi
 
 # Does the PNG directory exist?
-if  ! [[ -d ${PNGDIR} ]]; then
+if  ! [[ -d ${WEATHER_ICONS_PNG_DIRECTORY} ]]; then
     echo " The PNG directory path does not exist. Aborting..."
     exit 1
 fi
@@ -234,9 +187,9 @@ echo " Downloading Yahoo weather JSON data"
 CURLARGS="-f -s -S -k"
 
 # Execute the Curl command and cache the json file
-# $(curl ${CURLARGS} ${APIURL} -o ${CACHEDIR}/${JSON_CACHEFILE})
-CURL=$(curl ${CURLARGS} ${APIURL})
-echo "${CURL}" > ${CACHEDIR}/${JSON_CACHEFILE}
+# $(curl ${CURLARGS} ${WEATHER_API_URL} -o ${CACHE_DIRECTORY}/${JSON_CACHE_FILE})
+CURL=$(curl ${CURLARGS} ${WEATHER_API_URL})
+echo "${CURL}" > ${CACHE_DIRECTORY}/${JSON_CACHE_FILE}
 
 
 # GENERATE COLOR PALETTE PNG ------------------------------------------------------------
@@ -245,13 +198,13 @@ echo ""
 echo " Exporting color palette PNG based on the wallpaper's 16 most common colors"
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
-convert ${WALLPAPERPATH} \
+convert ${WALLPAPER_PATH} \
 +dither \
 -colors 16 \
 -unique-colors \
 -filter box \
--geometry ${COLORPWIDTH} \
-${CACHEDIR}/${COLORPIMG}
+-geometry ${COLOR_PALETTE_WIDTH} \
+${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG}
 
 
 # GENERATE AUTOMATIC COLORS -------------------------------------------------------------
@@ -261,9 +214,9 @@ echo " Extracting hex color values from color palette image"
 
 # Create a micro version of the color palette PNG: 1px x 16px 
 # so we can gather the color value using x/y coordinates
-MICROIMG="${CACHEDIR}/micropalette.png"
+MICROIMG="${CACHE_DIRECTORY}/micropalette.png"
 
-convert ${CACHEDIR}/${COLORPIMG} \
+convert ${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG} \
 -colors 16 \
 -unique-colors \
 -depth 8 \
@@ -389,7 +342,7 @@ echo " Building a randomized color map"
 
 # Background color
 RND=$(shuf -i 1-3 -n 1)
-COLOR_BG="${COLARRAY[${RND}]}"
+COLOR_BACKGROUND="${COLARRAY[${RND}]}"
 
 # Border color
 RND=$(shuf -i 5-13 -n 1)
@@ -426,11 +379,11 @@ COLOR_WEATHER="${COLARRAY[${RND}]}"
 
 # Headings
 RND=$(shuf -i 9-16 -n 1)
-COLOR_HEADINGS="${COLARRAY[${RND}]}"
+COLOR_HEADING="${COLARRAY[${RND}]}"
 
 # Subheadings
 RND=$(shuf -i 9-13 -n 1)
-COLOR_SUBHEADINGS="${COLARRAY[${RND}]}"
+COLOR_SUBHEADING="${COLARRAY[${RND}]}"
 
 # Data values
 RND=$(shuf -i 8-16 -n 1)
@@ -449,7 +402,7 @@ COLOR_TEXT="${COLARRAY[${RND}]}"
 TEMPDIR="/tmp/SVGCONVERT"
 
 # Copy the master SVG images to the temp directory.
-cp -R "${SVGDIR}" "${TEMPDIR}"
+cp -R "${WEATHER_ICONS_SVG_DIRECTORY}" "${TEMPDIR}"
 
 
 # REPLACE COLOR IN SVG FILES ------------------------------------------------------------
@@ -484,9 +437,9 @@ for filepath in "${TEMPDIR}"/*.svg
     if [[ $converter == "Inkscape" ]]
     then
         inkscape -z -e \
-        "${PNGDIR}/${name}.png" \
-        -w "${ICONSIZE}" \
-        -h "${ICONSIZE}" \
+        "${WEATHER_ICONS_PNG_DIRECTORY}/${name}.png" \
+        -w "${ICON_SIZE}" \
+        -h "${ICON_SIZE}" \
         "$filepath" \
         >/dev/null 2>&1 || { 
                                 echo " An error was encountered. Aborting...";
@@ -497,9 +450,9 @@ for filepath in "${TEMPDIR}"/*.svg
         convert \
         -background none \
         -density 1500 \
-        -resize "${ICONSIZE}x${ICONSIZE}!" \
+        -resize "${ICON_SIZE}x${ICON_SIZE}!" \
         "$filepath" \
-        "${PNGDIR}/${name}.png" \
+        "${WEATHER_ICONS_PNG_DIRECTORY}/${name}.png" \
         >/dev/null 2>&1 || { 
                                 echo " An error was encountered. Aborting..."; 
                                 rm -R "${TEMPDIR}";
@@ -523,20 +476,20 @@ rm -R "${TEMPDIR}"
 
 # Fetch the weather and forecast codes from the JSON file.
 # These will get matchedd to a PNG image with the same name below.
-CRWEATHERCODE=$(jq .query.results.channel.item.condition.code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
-FORECASTCODE1=$(jq .query.results.channel.item.forecast[1].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
-FORECASTCODE2=$(jq .query.results.channel.item.forecast[2].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
-FORECASTCODE3=$(jq .query.results.channel.item.forecast[3].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
-FORECASTCODE4=$(jq .query.results.channel.item.forecast[4].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
-FORECASTCODE5=$(jq .query.results.channel.item.forecast[5].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
+CRWEATHERCODE=$(jq .query.results.channel.item.condition.code ${CACHE_DIRECTORY}/${JSON_CACHE_FILE} | grep -oP '"\K[^"\047]+(?=["\047])')
+FORECASTCODE1=$(jq .query.results.channel.item.forecast[1].code ${CACHE_DIRECTORY}/${JSON_CACHE_FILE} | grep -oP '"\K[^"\047]+(?=["\047])')
+FORECASTCODE2=$(jq .query.results.channel.item.forecast[2].code ${CACHE_DIRECTORY}/${JSON_CACHE_FILE} | grep -oP '"\K[^"\047]+(?=["\047])')
+FORECASTCODE3=$(jq .query.results.channel.item.forecast[3].code ${CACHE_DIRECTORY}/${JSON_CACHE_FILE} | grep -oP '"\K[^"\047]+(?=["\047])')
+FORECASTCODE4=$(jq .query.results.channel.item.forecast[4].code ${CACHE_DIRECTORY}/${JSON_CACHE_FILE} | grep -oP '"\K[^"\047]+(?=["\047])')
+FORECASTCODE5=$(jq .query.results.channel.item.forecast[5].code ${CACHE_DIRECTORY}/${JSON_CACHE_FILE} | grep -oP '"\K[^"\047]+(?=["\047])')
 
 # Copy the PNG image with the matching weather/forecast code number to the cache folder
-cp -f ${PNGDIR}/${CRWEATHERCODE}.png ${CACHEDIR}/weather.png
-cp -f ${PNGDIR}/${FORECASTCODE1}.png ${CACHEDIR}/forecast1.png
-cp -f ${PNGDIR}/${FORECASTCODE2}.png ${CACHEDIR}/forecast2.png
-cp -f ${PNGDIR}/${FORECASTCODE3}.png ${CACHEDIR}/forecast3.png
-cp -f ${PNGDIR}/${FORECASTCODE4}.png ${CACHEDIR}/forecast4.png
-cp -f ${PNGDIR}/${FORECASTCODE5}.png ${CACHEDIR}/forecast5.png
+cp -f ${PNGWEATHER_ICONS_PNG_DIRECTORYDIR}/${CRWEATHERCODE}.png ${CACHE_DIRECTORY}/weather.png
+cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE1}.png ${CACHE_DIRECTORY}/forecast1.png
+cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE2}.png ${CACHE_DIRECTORY}/forecast2.png
+cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE3}.png ${CACHE_DIRECTORY}/forecast3.png
+cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE4}.png ${CACHE_DIRECTORY}/forecast4.png
+cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE5}.png ${CACHE_DIRECTORY}/forecast5.png
 
 
 # KILL CONKY IF IT'S RUNNING ------------------------------------------------------------
@@ -554,38 +507,38 @@ echo ""
 echo " Inserting color values into the conky template"
 
 # Before replacing vars make a copy of the template
-cp ${TEMPLDIR}/${TEMPLFILE} ${CACHEDIR}/conkyrc
+cp ${TEMPLATE_DIRECTORY}/${TEMPLATE_FILENAME} ${CACHE_DIRECTORY}/conkyrc
 
 # API URL
 # Escape ampersands before running sed
-APIURL=${APIURL//&/\\&}
-sed -i -e "s|_VAR:API_URL|${APIURL}|g" "${CACHEDIR}/conkyrc"
+WEATHER_API_URL=${WEATHER_API_URL//&/\\&}
+sed -i -e "s|_VAR:API_URL|${WEATHER_API_URL}|g" "${CACHE_DIRECTORY}/conkyrc"
 
 # Path to JSON file; /path/to/Cache/weather.json
-sed -i -e "s|_VAR:JSON_FILEPATH_|${CACHEDIR}/${JSON_CACHEFILE}|g" "${CACHEDIR}/conkyrc"
+sed -i -e "s|_VAR:JSON_WEATHER_FILEPATH_|${CACHE_DIRECTORY}/${JSON_CACHE_FILE}|g" "${CACHE_DIRECTORY}/conkyrc"
 
 # Full path to cache directory - no trailing slash
-sed -i -e "s|_VAR:CACHE_DIR_|${CACHEDIR}|g" "${CACHEDIR}/conkyrc"
+sed -i -e "s|_VAR:CACHE_DIRECTORY_|${CACHE_DIRECTORY}|g" "${CACHE_DIRECTORY}/conkyrc"
 
 # Path to PNG-Weather-Icons folder - no trailing slash
-sed -i -e "s|_VAR:WEATHER_ICONS_|${PNGDIR}|g" "${CACHEDIR}/conkyrc"
+sed -i -e "s|_VAR:WEATHER_ICONS_DIRECTORY_|${WEATHER_ICONS_PNG_DIRECTORY}|g" "${CACHE_DIRECTORY}/conkyrc"
 
 # Full /path/to/colorpalette.png
-sed -i -e "s|_VAR:COLOR_PALETTE_FILEPATH_|${CACHEDIR}/${COLORPIMG}|g" "${CACHEDIR}/conkyrc"
+sed -i -e "s|_VAR:COLOR_PALETTE_FILEPATH_|${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG}|g" "${CACHE_DIRECTORY}/conkyrc"
 
 # Colors
-sed -i -e "s|_VAR:COLOR_BG_|${COLOR_BG}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_HR_|${COLOR_HR}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_BARS_NORM_|${COLOR_BARS_NORM}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_BARS_WARN_|${COLOR_BARS_WARN}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_BORDER_|${COLOR_BORDER}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_TIME_|${COLOR_TIME}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_DATE_|${COLOR_DATE}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_WEATHER_|${COLOR_WEATHER}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_HEADINGS_|${COLOR_HEADINGS}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_SUBHEADINGS_|${COLOR_SUBHEADINGS}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_DATA_|${COLOR_DATA}|g" "${CACHEDIR}/conkyrc"
-sed -i -e "s|_VAR:COLOR_TEXT_|${COLOR_TEXT}|g" "${CACHEDIR}/conkyrc"
+sed -i -e "s|_VAR:COLOR_BACKGROUND_|${COLOR_BACKGROUND}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_HR_|${COLOR_HR}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_BARS_NORM_|${COLOR_BARS_NORM}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_BARS_WARN_|${COLOR_BARS_WARN}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_BORDER_|${COLOR_BORDER}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_TIME_|${COLOR_TIME}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_DATE_|${COLOR_DATE}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_WEATHER_|${COLOR_WEATHER}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_HEADING_|${COLOR_HEADING}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_SUBHEADING_|${COLOR_SUBHEADING}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_DATA_|${COLOR_DATA}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_TEXT_|${COLOR_TEXT}|g" "${CACHE_DIRECTORY}/conkyrc"
 
 
 # CLEANUP -------------------------------------------------------------------------------
@@ -594,10 +547,10 @@ echo ""
 echo " Exporting new .conkyrc file"
 
 # Copy conkyrc file to its proper location
-cp ${CACHEDIR}/conkyrc ~/.conkyrc
+cp ${CACHE_DIRECTORY}/conkyrc ~/.conkyrc
 
 # Remove the temp file
-rm ${CACHEDIR}/conkyrc
+rm ${CACHE_DIRECTORY}/conkyrc
 
 # Launch conky
 echo ""

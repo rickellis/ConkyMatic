@@ -30,7 +30,7 @@ The entires sequence takes the script about 10 seconds, making it very fast and 
 ## Installation and Usage.
 Just clone the package, update the config variables at the top of __conkymatic.sh__, and run the script.
 
-### __Important:__ Before running ConkyMatic make a backup copy of your .conkyrc file since it will get overwritten. 
+__Important:__ Before running ConkyMatic make a backup copy of your .conkyrc file since it will get overwritten. 
 
 
 ## Customization
@@ -39,46 +39,43 @@ In the __Templates__ directory you'll find the __default.conky__ template. This 
 Additional templates can be created and added to the __Templates__ folder. If more than one template is in the folder, when you run the __conkymatic.sh__ script via your terminal you'll be given a choice of templates. Hitting __ENTER__ in the terminal will auto-select the template named __default.conky__, or you can type the name of the one you prefer to run.
 
 ## ConkyMatic Terminal Alias
-To make running the script faster you can add the following alias to your __.bashrc__ file:
+To make running the script faster you can add the following alias to your __.bashrc__ file, and then just enter __conkymatic__ from your terminal.
 
     function conkymatic() {
         $HOME/path/to/ConkyMatic/conkymatic.sh
     }
 
-Then just enter __conkymatic__ from your terminal.
-
 __Note:__ Make sure you change the path in the function to reflect your particular path.
 
 ## Template Variables
-The template variables are just text placeholders which get replaced when the script gets run. The following variables are available for use.
+The template variables are just text placeholders which get replaced when the script gets run. The following variables are available for use. The colors will be assigned automatically from your wallpaper colors.
 
     
 
     _VAR:COLOR_TIME_
     _VAR:COLOR_DATE_
     _VAR:COLOR_WEATHER_
-    _VAR:COLOR_HEADINGS_
-    _VAR:COLOR_SUBHEADINGS_
+    _VAR:COLOR_HEADING_
+    _VAR:COLOR_SUBHEADING_
     _VAR:COLOR_TEXT_
     _VAR:COLOR_DATA_
     _VAR:COLOR_HR_
     _VAR:COLOR_BARS_NORM_
     _VAR:COLOR_BARS_WARN_
     _VAR:COLOR_BORDER_
-    _VAR:COLOR_BG_
+    _VAR:COLOR_BACKGROUND_
 
-Or, if you prefer you can use numbered values which are mapped to the respective ${colorX} variables.
+In addition, the following variables are available:
 
-    _VAR:COLOR_0_
-    _VAR:COLOR_1_
-    _VAR:COLOR_2_
-    _VAR:COLOR_3_
-    _VAR:COLOR_4_
-    _VAR:COLOR_5_
-    _VAR:COLOR_6_
-    _VAR:COLOR_7_
-    _VAR:COLOR_8_
-    _VAR:COLOR_9_
+    _VAR:JSON_FILEPATH_
+    _VAR:CACHE_DIRECTORY_
+    _VAR:WEATHER_ICONS_PNG_DIRECTORY_
+    _VAR:COLOR_PALETTE_FILEPATH_
+
+
+
+
+
 
 
 <img src="https://i.imgur.com/Z6UPjym.png" />
