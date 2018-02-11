@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-VERSION="1.0.0"
 #----------------------------------------------------------------------------------------
 #
 # conkymatic.sh
 #
-# Version 1.0.0
+VERSION="1.0.0"
 #
 # Conky automatic color generator based on currrent wallpaper.
 #
@@ -17,8 +16,9 @@ VERSION="1.0.0"
 # in the current wallpaper.
 #
 # Dependencies
-#   1. ImageMagic (required). Used to generate color palettes.
-#   2. Inkscape (optional). If installed, will use it to render SVG to PNG.
+#   1. Curl
+#   2. ImageMagick (required). Used to generate color palettes.
+#   3. Inkscape (optional). If installed, will use it to render SVG to PNG.
 #
 # Usage: 
 #
@@ -27,14 +27,8 @@ VERSION="1.0.0"
 #   ./conkymatic.sh
 #
 #----------------------------------------------------------------------------------------
-# DO NOT JUST RUN THIS SCRIPT. EXAMINE THE CODE. UNDERSTAND IT. RUN IT AT YOUR OWN RISK.
+# USER CONFIGURATION VARIABLES
 #----------------------------------------------------------------------------------------
-
-
-#
-# USER CONFIGURATION VARIABLES ----------------------------------------------------------
-#
-# Most of the vraiables below do not need to be changed unless you have specific needs.
 
 # Your city for weather data
 YOUR_CITY="laramie"
@@ -42,31 +36,33 @@ YOUR_CITY="laramie"
 # Your state
 YOUR_STATE="wy"
 
+# Template to base the .conkyrc file one
+TEMPLFILE="default.conky"
+
 # URL to the Yahoo weather JSON file. 
-# If you entered your city and state above the URL below should work by default.
-# Note: If you live outside of the U.S. you'll likely need to update the URL. Go to:
-# https://developer.yahoo.com/weather/
+# If you entered your city and state above, the URL below should work by default.
+# Note: If you live outside of the U.S. you'll likely need to update the URL.
+# Go to: https://developer.yahoo.com/weather/
 APIURL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${YOUR_CITY}%2C%20${YOUR_STATE}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
 
 # Path to the current wallpaper.
-# Since I use XFCE desktop I'm running a query to get the path.
-# If you are running a different desktop you'll have to figure out how to query
-# your system to get the current wallpaper.
+# If you are running a different desktop than XFCE you'll have to figure
+# out how to query your system to get the current wallpaper.
 WALLPAPERPATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/backdrop/screen0/monitor0/image-path)
+
+# Background transparency. Value between 0-255
+BG_TRANS="230"
 
 # Base URL to the directory containing the various assets.
 # Do not change this unless you need a different directory structure.
 #BASEPATH="${PWD}"
 BASEPATH=$(dirname -- $(readlink -fn -- "$0"))
 
-# Template to use to create the .conkyrc file
-TEMPLFILE="default.conky"
+# Name of the JSON cache file
+JSON_CACHEFILE="weather.json"
 
 # Template directory path
 TEMPLDIR="${BASEPATH}/Templates"
-
-# Name of the JSON cache file
-JSON_CACHEFILE="weather.json"
 
 # Location of cache directory.
 CACHEDIR="${BASEPATH}/Cache"
@@ -74,8 +70,14 @@ CACHEDIR="${BASEPATH}/Cache"
 # Folder with the SVG master images
 SVGICONS="Weather-Icons-SVG/Yahoo"
 
+# Full path to the SVG icons
+SVGDIR="${BASEPATH}/${SVGICONS}"
+
 # Folder where the PNG images will be copied to
 PNGICONS="Weather-Icons-PNG"
+
+# Full path to the PNG icon folder
+PNGDIR="${BASEPATH}/${PNGICONS}"
 
 # Size that the PNG icons should be converted to
 ICONSIZE="64"
@@ -85,6 +87,9 @@ COLORPIMG="colorpalette.png"
 
 # Desired width of color palette image
 COLORPWIDTH="224"
+
+# These color values aren't used since the script sets them automatically.
+# Changing them won't affect anything.
 
 # Default background color
 COLOR_BG="#000000"
@@ -125,15 +130,9 @@ COLOR_DATA="#6edd78"
 # Color extra
 COLOR_EXTRA="#d570ac"
 
-# Background transparency. Value between 0-255
-BG_TRANS="230"
-
 #
-# END OF USER CONFIGURATION VARIABLES ---------------------------------------------------
+# END OF USER CONFIGURATION VARIABLES
 #
-
-
-# WELCOME MESSAGE ---------------------------------------------------------------------
 
 echo ""
 echo "-----------------------------------------------------------------------"
@@ -141,8 +140,7 @@ echo " Welcome to ConkyMatic Version ${VERSION}"
 echo "-----------------------------------------------------------------------"
 
 
-
-# DO THE VARIOUS DIRECTORIES EXIST? -----------------------------------------------------
+# DO THE VARIOUS DIRECTORIES SPECIFIED ABOVE EXIST?
 
 # Remove the trailing slash from the cache directory path
 if [[ ${CACHEDIR} =~ .*/$ ]]; then
@@ -163,6 +161,28 @@ fi
 # Does the template directory exist?
 if  ! [[ -d ${TEMPLDIR} ]]; then
     echo " The template directory path does not exist. Aborting..."
+    exit 1
+fi
+
+# Remove the trailing slash from the SVG directory path
+if [[ ${SVGDIR} =~ .*/$ ]]; then
+    SVGDIR="${SVGDIR:0:-1}"
+fi
+
+# Does the SVG directory exist?
+if  ! [[ -d ${SVGDIR} ]]; then
+    echo " The SVG directory path does not exist. Aborting..."
+    exit 1
+fi
+
+# Remove the trailing slash from the PNG directory path
+if [[ ${PNGDIR} =~ .*/$ ]]; then
+    PNGDIR="${PNGDIR:0:-1}"
+fi
+
+# Does the PNG directory exist?
+if  ! [[ -d ${PNGDIR} ]]; then
+    echo " The PNG directory path does not exist. Aborting..."
     exit 1
 fi
 
@@ -187,12 +207,10 @@ if [ "$(command -v inkscape)" >/dev/null 2>&1 ]; then
     converter="Inkscape"
 fi
 
-
-
 # CONSENT -------------------------------------------------------------------------------
 
 echo ""
-echo " Hit ENTER to begin, or any other key to abort."
+echo " Hit ENTER to begin, or any other key to abort"
 read CONSENT
 
 # Validate mode.
@@ -208,7 +226,7 @@ echo " Here we go!"
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
 
 echo ""
-echo " Downloading Yahoo weather data"
+echo " Downloading Yahoo weather JSON data"
 
 # Curl argumnets:
 #   -f = fail silently. Will issue error code 22
@@ -223,11 +241,10 @@ CURL=$(curl ${CURLARGS} ${APIURL})
 echo "${CURL}" > ${CACHEDIR}/${JSON_CACHEFILE}
 
 
-
 # GENERATE COLOR PALETTE PNG ------------------------------------------------------------
 
 echo ""
-echo " Exporting color palette based on your 16 most predominant wallpaper colors."
+echo " Exporting color palette PNG based on the wallpaper's 16 most common colors"
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
 convert ${WALLPAPERPATH} \
@@ -245,6 +262,7 @@ echo ""
 echo " Extracting hex color values from color palette image"
 
 # Create a micro version of the color palette PNG: 1px x 16px 
+# so we can gather the color value using x/y coordinates
 MICROIMG="${CACHEDIR}/micropalette.png"
 
 convert ${CACHEDIR}/${COLORPIMG} \
@@ -257,6 +275,12 @@ ${MICROIMG}
 
 
 # EXTRACT COLOR VAlUES --------------------------------------------------------------
+
+# Although ImageMagick allows you to extract all the image colors in one acction, 
+# the colors are sorted alphabetically, not from dark to light as they are when
+# the color palette image is created. I ended up having to extract each color value 
+# based on the x/y coordinates of the micropalette image. At some point I'd like to
+# revisit this code and see if I can find a more graceful way to accomplish this.
 
 COLOR1=$(convert ${MICROIMG} -crop '1x1+0+0' txt:-)
 # Remove newlines 
@@ -361,7 +385,7 @@ rm ${MICROIMG}
 # SET COLOR VARIABLES ---------------------------------------------------------------
 
 echo ""
-echo " Building randomized color map"
+echo " Building a randomized color map"
 
 # All colors are randomly selected!
 
@@ -374,58 +398,60 @@ RND=$(shuf -i 5-13 -n 1)
 COLOR_BORDER="${COLARRAY[${RND}]}"
 
 # Weather icon color
-RND=$(shuf -i 11-16 -n 1)
+RND=$(shuf -i 12-16 -n 1)
 COLOR_ICON="${COLARRAY[${RND}]}"
 
 # HR color
-RND=$(shuf -i 5-13 -n 1)
+RND=$(shuf -i 7-13 -n 1)
 COLOR_HR="${COLARRAY[${RND}]}"
 
 # Bars normal
-RND=$(shuf -i 10-15 -n 1)
+RND=$(shuf -i 10-16 -n 1)
 COLOR_BARS_NORM="${COLARRAY[${RND}]}"
 
 # Bars warning
-COLOR_BARS_WARN="${COLARRAY[16]}"
+# COLOR_BARS_WARN="${COLARRAY[16]}"
+# Make this red since it's only used for a depleted battery.
+COLOR_BARS_WARN="#fc1b0f"
 
 # Time color
 RND=$(shuf -i 12-16 -n 1)
 COLOR_TIME="${COLARRAY[${RND}]}"
 
 # Date color
-RND=$(shuf -i 10-16 -n 1)
+RND=$(shuf -i 11-16 -n 1)
 COLOR_DATE="${COLARRAY[${RND}]}"
 
 # Weather data color
-RND=$(shuf -i 11-15 -n 1)
+RND=$(shuf -i 12-16 -n 1)
 COLOR_WEATHER="${COLARRAY[${RND}]}"
 
 # Headings
-RND=$(shuf -i 8-16 -n 1)
+RND=$(shuf -i 9-16 -n 1)
 COLOR_HEADINGS="${COLARRAY[${RND}]}"
 
 # Subheadings
-RND=$(shuf -i 8-14 -n 1)
+RND=$(shuf -i 9-13 -n 1)
 COLOR_SUBHEADINGS="${COLARRAY[${RND}]}"
 
 # Data values
-RND=$(shuf -i 7-16 -n 1)
+RND=$(shuf -i 8-16 -n 1)
 COLOR_DATA="${COLARRAY[${RND}]}"
 
 # Color extra
-RND=$(shuf -i 10-16 -n 1)
+RND=$(shuf -i 4-16 -n 1)
 COLOR_EXTRA="${COLARRAY[${RND}]}"
 
 
-
 # COPY SVG TO TMP/DIRECTORY  ------------------------------------------------------------
+# We do this because we need to open each SVG and replace the color value. 
+# No reason to mess with the originals.
 
-# Name of the temp directory that we will copy the SVGs to.
+# Name of the directory that we will copy the SVGs to.
 TEMPDIR="/tmp/SVGCONVERT"
 
-# Copy the master svg images to the temp directory.
-# We don't want to mess with the originals.
-cp -R "${BASEPATH}/${SVGICONS}" "${TEMPDIR}"
+# Copy the master SVG images to the temp directory.
+cp -R "${SVGDIR}" "${TEMPDIR}"
 
 
 # REPLACE COLOR IN SVG FILES ------------------------------------------------------------
@@ -443,7 +469,8 @@ echo ""
 echo " Exporting weather icons using $converter"
 echo ""
 
-
+# We now run either ImageMagick or Inkscape to turn the SVG
+# images into PNGs with the auto-selected color value.
 str="."
 i=1
 for filepath in "${TEMPDIR}"/*.svg
@@ -455,13 +482,11 @@ for filepath in "${TEMPDIR}"/*.svg
     # Remove the file extension, leaving only the name  
     name="${filename%%.*}"
 
-   # echo "Converting ${filename}"
-
     # Convert to PNG using either Inkscape or ImageMagick
-    if [[ $converter == "inkscape" ]]
+    if [[ $converter == "Inkscape" ]]
     then
         inkscape -z -e \
-        "${BASEPATH}/${PNGICONS}/${name}.png" \
+        "${PNGDIR}/${name}.png" \
         -w "${ICONSIZE}" \
         -h "${ICONSIZE}" \
         "$filepath" \
@@ -476,7 +501,7 @@ for filepath in "${TEMPDIR}"/*.svg
         -density 1500 \
         -resize "${ICONSIZE}x${ICONSIZE}!" \
         "$filepath" \
-        "${BASEPATH}/${PNGICONS}/${name}.png" \
+        "${PNGDIR}/${name}.png" \
         >/dev/null 2>&1 || { 
                                 echo " An error was encountered. Aborting..."; 
                                 rm -R "${TEMPDIR}";
@@ -484,15 +509,19 @@ for filepath in "${TEMPDIR}"/*.svg
                             }
     fi
 
-    echo -ne "(Exporting image ${i}) ${str}\r"
+    # Increment the progress bar with each iteration
+    echo -ne " (Exporting image ${i}) ${str}\r"
     ((i++))
     str="${str}."
 done
 
-# Delete the temporary directory
+# Delete the temporary directory.
 rm -R "${TEMPDIR}"
 
-# COPY PNG IMAGES TO THE CACHE DIR FOR CURRENT WEATHER & FORECAST -----------------------
+
+# CACHE THE CURRENT WEATHER & FORECAST ICONS --------------------------------------------
+# These are the icons that get displayed in the conky. They get regenerated
+# every five minutes via code in the conky itself
 
 # Fetch the weather and forecast codes from the JSON file.
 # These will get matchedd to a PNG image with the same name below.
@@ -504,16 +533,15 @@ FORECASTCODE4=$(jq .query.results.channel.item.forecast[4].code ${CACHEDIR}/${JS
 FORECASTCODE5=$(jq .query.results.channel.item.forecast[5].code ${CACHEDIR}/${JSON_CACHEFILE} | grep -oP '"\K[^"\047]+(?=["\047])')
 
 # Copy the PNG image with the matching weather/forecast code number to the cache folder
-cp -f ${BASEPATH}/${PNGICONS}/${CRWEATHERCODE}.png ${CACHEDIR}/weather.png
-cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE1}.png ${CACHEDIR}/forecast1.png
-cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE2}.png ${CACHEDIR}/forecast2.png
-cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE3}.png ${CACHEDIR}/forecast3.png
-cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE4}.png ${CACHEDIR}/forecast4.png
-cp -f ${BASEPATH}/${PNGICONS}/${FORECASTCODE5}.png ${CACHEDIR}/forecast5.png
+cp -f ${PNGDIR}/${CRWEATHERCODE}.png ${CACHEDIR}/weather.png
+cp -f ${PNGDIR}/${FORECASTCODE1}.png ${CACHEDIR}/forecast1.png
+cp -f ${PNGDIR}/${FORECASTCODE2}.png ${CACHEDIR}/forecast2.png
+cp -f ${PNGDIR}/${FORECASTCODE3}.png ${CACHEDIR}/forecast3.png
+cp -f ${PNGDIR}/${FORECASTCODE4}.png ${CACHEDIR}/forecast4.png
+cp -f ${PNGDIR}/${FORECASTCODE5}.png ${CACHEDIR}/forecast5.png
 
 
-
-# KILL CONKY ----------------------------------------------------------------------------
+# KILL CONKY IF IT'S RUNNING ------------------------------------------------------------
 
 echo ""
 echo ""
@@ -522,15 +550,16 @@ pkill conky
 
 
 # REPLACE TEMPLATE VARIABLES ------------------------------------------------------------
+# Now it's time to insert the randomly gathered color values into the template
 
 echo ""
-echo " Exporting new .conkyrc file"
+echo " Inserting color values into the conky template"
 
 # Before replacing vars make a copy of the template
 cp ${TEMPLDIR}/${TEMPLFILE} ${CACHEDIR}/conkyrc
 
 # API URL
-# We need to escape ampersands before running sed
+# Escape ampersands before running sed
 APIURL=${APIURL//&/\\&}
 sed -i -e "s|_VAR:API_URL|${APIURL}|g" "${CACHEDIR}/conkyrc"
 
@@ -541,7 +570,7 @@ sed -i -e "s|_VAR:JSON_FILEPATH_|${CACHEDIR}/${JSON_CACHEFILE}|g" "${CACHEDIR}/c
 sed -i -e "s|_VAR:CACHE_DIR_|${CACHEDIR}|g" "${CACHEDIR}/conkyrc"
 
 # Path to PNG-Weather-Icons folder - no trailing slash
-sed -i -e "s|_VAR:WEATHER_ICONS_|${BASEPATH}/${PNGICONS}|g" "${CACHEDIR}/conkyrc"
+sed -i -e "s|_VAR:WEATHER_ICONS_|${PNGDIR}|g" "${CACHEDIR}/conkyrc"
 
 # Full /path/to/colorpalette.png
 sed -i -e "s|_VAR:COLOR_PALETTE_FILEPATH_|${CACHEDIR}/${COLORPIMG}|g" "${CACHEDIR}/conkyrc"
@@ -565,7 +594,10 @@ sed -i -e "s|_VAR:COLOR_EXTRA_|${COLOR_EXTRA}|g" "${CACHEDIR}/conkyrc"
 
 
 # CLEANUP -------------------------------------------------------------------------------
-    
+
+echo ""
+echo " Exporting new .conkyrc file"
+
 # Copy conkyrc file to its proper location
 cp ${CACHEDIR}/conkyrc ~/.conkyrc
 
