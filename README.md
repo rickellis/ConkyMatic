@@ -29,6 +29,8 @@ The entire sequence takes the script about 10 seconds, making it very fast and e
 
 * __XFCE Desktop__. The script should work regardless of the desktop environment you use. However, you'll have to update the __WALLPAPER_PATH__ config variable near the top of the __conkymatic.sh__ script with a query that retrieves the wallpaper on your system.
 
+* __Roboto Font__. The default Conky template uses [Roboto](https://www.dafont.com/roboto.font).
+
 ## Installation and Usage.
 Just clone the package, update the config variables at the top of __conkymatic.sh__, and run the script.
 
