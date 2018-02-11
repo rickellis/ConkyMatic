@@ -1,10 +1,8 @@
 # ConkyMatic
 
-## Conky generator based on the wallpaper colors.
-
 <img src="https://i.imgur.com/5C8xmwo.png" />
 
-ConkyMatic is a shell script written in Bash that:
+## ConkyMatic is a shell script that:
 
 * Creates a 16 color palette image from the current wallpaper.
 
