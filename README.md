@@ -13,4 +13,4 @@ The ConkyMatic is a shell script that:
 
 The entires sequence takes the script about 10 seconds, making it very fast and easy to build a fresh conky every time the wallpaper is changed. Since the colors are randomly selected, running the script multiple times with the same wallpaper will yield different results.
 
-[Imgur](https://i.imgur.com/YBHxfg1.png)
+<img src="https://i.imgur.com/YBHxfg1.png" />
