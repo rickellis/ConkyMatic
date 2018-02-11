@@ -50,6 +50,7 @@ WALLPAPER_PATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/back
 # Basepath to the directory containing the various assets.
 # Do not change this unless you need a different directory structure.
 #BASEPATH="${PWD}"
+# This allows the basepath to be correct if this script gets aliased in .bashrc
 BASEPATH=$(dirname -- $(readlink -fn -- "$0"))
 
 # Name of the JSON cache file
@@ -68,14 +69,15 @@ WEATHER_ICONS_SVG_DIRECTORY="${BASEPATH}/Weather-Icons-SVG/Yahoo"
 WEATHER_ICONS_PNG_DIRECTORY="${BASEPATH}/Weather-Icons-PNG"
 
 # Size that the PNG icons should be converted to.
-# Note: In the .conkyrc file you can set the size of each image.
+# Note: In the .conkyrc file you can set the display size of each image.
 # Just make the size here larger than what you anticipate using.
 ICON_SIZE="64"
 
 # Name of the color palette image
 COLOR_PALETTE_IMG="colorpalette.png"
 
-# Desired width of color palette image
+# Desired width of color palette image. If you change the dimensions of
+# your conky template you might need to change this.
 COLOR_PALETTE_WIDTH="224"
 
 #
@@ -181,7 +183,6 @@ if [[ ${TMPLN} == 0 ]]; then
     echo ""
     exit 1
 fi
-
 
 # CONSENT -------------------------------------------------------------------------------
 
@@ -309,6 +310,7 @@ convert ${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG} \
 -size 1x16 \
 -geometry 16 \
 ${MICROIMG}
+
 
 # EXTRACT COLOR VAlUES --------------------------------------------------------------
 
