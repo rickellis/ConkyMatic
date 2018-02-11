@@ -30,7 +30,7 @@ imlib_cache_size = 0,                       -- disable image cache to get a new 
 --Placement
 
 alignment = 'middle_right',		            -- top_left,top_middle,top_right,bottom_left,bottom_middle,bottom_right,middle_left,middle_middle,middle_right,none
-gap_x = 40,									-- pixels between right or left border
+gap_x = 50,									-- pixels between right or left border
 gap_y = 0,									-- pixels between bottom or left border
 minimum_height = 600,						-- minimum height of window
 minimum_width = 240,						-- minimum height of window

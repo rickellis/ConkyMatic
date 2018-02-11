@@ -4,7 +4,7 @@
 
 ## ConkyMatic is a shell script that:
 
-* Creates a 16 color palette image from the current wallpaper (see the bottom of the Conky in the images).
+* Creates a 16 color palette image from the current wallpaper (look at the bottom of the Conky in the screenshots).
 
 * Extracts the hex color value of each of the 16 images in the color palette.
 
@@ -14,9 +14,9 @@
 
 * Copies the new .conkyrc file to the home folder and relaunches the Conky application.
 
-The entires sequence takes the script about 10 seconds, making it very fast and easy to build a fresh conky every time the wallpaper is changed. And since the colors are randomly selected, running the script multiple times with the same wallpaper will yield different results.
+The entire sequence takes the script about 10 seconds, making it very fast and easy to build a fresh conky every time you change your wallpaper. And since the colors are randomly selected, running the script multiple times with the same wallpaper will yield different results.
 
-### [YouTube Video](https://youtu.be/sq9HvFkPffM)
+### [YouTube Video](https://youtu.be/1oh5d-5QJ0U)
 
 <img src="https://i.imgur.com/Za81gmK.png" />
 
@@ -27,7 +27,7 @@ The entires sequence takes the script about 10 seconds, making it very fast and 
 
 * __Curl__ to download JSON weather data. You can install Curl using your preferred package manager.
 
-* __XFCE Desktop__. The script should work regardless of the desktop environment you use. However, you'll have to update the __WALLPAPERPATH__ config variable near the top of the __conkymatic.sh__ script with a query that retrieves the wallpaper on your system.
+* __XFCE Desktop__. The script should work regardless of the desktop environment you use. However, you'll have to update the __WALLPAPER_PATH__ config variable near the top of the __conkymatic.sh__ script with a query that retrieves the wallpaper on your system.
 
 ## Installation and Usage.
 Just clone the package, update the config variables at the top of __conkymatic.sh__, and run the script.
@@ -77,9 +77,13 @@ In addition, the following variables are available:
     _VAR:COLOR_PALETTE_FILEPATH_
 
 
+## License
 
+Creative Commons Attribution 4.0:
 
+https://creativecommons.org/licenses/by/4.0/
 
+You may use the source code in any manner you choose, as long as appropriate credit is given.
 
 
 <img src="https://i.imgur.com/Z6UPjym.png" />
@@ -88,13 +92,5 @@ In addition, the following variables are available:
 
 <img src="https://i.imgur.com/rsVC1AX.png" />
 
-
-
-
 <img src="https://i.imgur.com/udb0bqo.png" />
 
-
-
-<img src="https://i.imgur.com/YBHxfg1.png" />
-
-<img src="https://i.imgur.com/mBXnK3t.png" />

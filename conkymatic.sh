@@ -281,7 +281,7 @@ echo "${CURL}" > ${CACHE_DIRECTORY}/${JSON_CACHE_FILE}
 # GENERATE COLOR PALETTE PNG ------------------------------------------------------------
 
 echo ""
-echo " Exporting color palette PNG based on the wallpaper's 16 most common colors"
+echo " Exporting color palette based on the wallpaper's 16 most common colors"
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
 convert ${WALLPAPER_PATH} \
@@ -427,8 +427,8 @@ echo " Building a randomized color map"
 # randomization otherwize the conky might be unreadable, so we make it
 # random within an acceptable range. The full color range is from 1 to 16.
 
-# Background color. We select from the darkest 4 colors.
-RND=$(shuf -i 1-4 -n 1)
+# Background color. We select from the darkest 3 colors.
+RND=$(shuf -i 1-3 -n 1)
 COLOR_BACKGROUND="${COLARRAY[${RND}]}"
 
 # Border color. Select from all but the darkst 5
@@ -589,6 +589,20 @@ echo " Inserting color values into the conky template"
 # Before replacing vars make a copy of the template
 cp ${TEMPLATE_SELECTION} ${CACHE_DIRECTORY}/conkyrc
 
+# Colors
+sed -i -e "s|_VAR:COLOR_BACKGROUND_|${COLOR_BACKGROUND}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_HR_|${COLOR_HR}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_BARS_NORM_|${COLOR_BARS_NORM}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_BARS_WARN_|${COLOR_BARS_WARN}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_BORDER_|${COLOR_BORDER}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_TIME_|${COLOR_TIME}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_DATE_|${COLOR_DATE}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_WEATHER_|${COLOR_WEATHER}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_HEADING_|${COLOR_HEADING}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_SUBHEADING_|${COLOR_SUBHEADING}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_DATA_|${COLOR_DATA}|g" "${CACHE_DIRECTORY}/conkyrc"
+sed -i -e "s|_VAR:COLOR_TEXT_|${COLOR_TEXT}|g" "${CACHE_DIRECTORY}/conkyrc"
+
 # API URL
 # Escape ampersands before running sed
 WEATHER_API_URL=${WEATHER_API_URL//&/\\&}
@@ -605,20 +619,6 @@ sed -i -e "s|_VAR:WEATHER_ICONS_DIRECTORY_|${WEATHER_ICONS_PNG_DIRECTORY}|g" "${
 
 # Full /path/to/colorpalette.png
 sed -i -e "s|_VAR:COLOR_PALETTE_FILEPATH_|${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG}|g" "${CACHE_DIRECTORY}/conkyrc"
-
-# Colors
-sed -i -e "s|_VAR:COLOR_BACKGROUND_|${COLOR_BACKGROUND}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_HR_|${COLOR_HR}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_BARS_NORM_|${COLOR_BARS_NORM}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_BARS_WARN_|${COLOR_BARS_WARN}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_BORDER_|${COLOR_BORDER}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_TIME_|${COLOR_TIME}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_DATE_|${COLOR_DATE}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_WEATHER_|${COLOR_WEATHER}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_HEADING_|${COLOR_HEADING}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_SUBHEADING_|${COLOR_SUBHEADING}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_DATA_|${COLOR_DATA}|g" "${CACHE_DIRECTORY}/conkyrc"
-sed -i -e "s|_VAR:COLOR_TEXT_|${COLOR_TEXT}|g" "${CACHE_DIRECTORY}/conkyrc"
 
 
 # REPLACE CONKYRC FILE AND RELAUNCH -----------------------------------------------------
