@@ -1,4 +1,7 @@
 # ConkyMatic
+
+<img src="https://i.imgur.com/5C8xmwo.png" />
+
 ConkyMatic is a shell script that:
 
 * Creates a 16 color palette image from the current wallpaper.
@@ -9,11 +12,11 @@ ConkyMatic is a shell script that:
 
 * Copies the new .conkyrc file to the user's home folder and relaunches the Conky application.
 
-The entires sequence takes the script about 10 seconds, making it very fast and easy to build a fresh conky every time the wallpaper is changed. Since the colors are randomly selected, running the script multiple times with the same wallpaper will yield different results.
+The entires sequence takes the script about 10 seconds, making it very fast and easy to build a fresh conky every time the wallpaper is changed. And since the colors are randomly selected, running the script multiple times with the same wallpaper will yield different results.
 
 [YouTube Video](https://youtu.be/sq9HvFkPffM)
 
-<img src="https://i.imgur.com/5C8xmwo.png" />
+
 
 <img src="https://i.imgur.com/Za81gmK.png" />
 
