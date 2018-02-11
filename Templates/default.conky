@@ -1,20 +1,26 @@
 --[[
-#=====================================================================================
-#  Package:     CONKY
-#  Author:      Rick Ellis
-#  Date:        02/01/2018
-#  License:     Distributed under the terms of GNU GPL version 2 or later
-#  Font Used:   Roboto
-#======================================================================================
+#----------------------------------------------------------------------------------------
 #
-#  Conky documentation: http://conky.sourceforge.net/docs.html
+# Default Conky Template for ConkyMatic
 #
+# Version 1.0.0
+#
+# by Rick Ellis
+# https://github.com/rickellis
+#
+# Font used: Roboto
+#
+Conky documentation: http://conky.sourceforge.net/docs.html
+#
+#
+# License: MIT
+#
+#----------------------------------------------------------------------------------------
 ]]
 
 conky.config = {
 
 font = 'Roboto:size=11:bold',  	            -- font for complete conky unless in code defined
-
 background = true, 							-- forked to background
 cpu_avg_samples = 2,						-- The number of samples to average for CPU monitoring.
 diskio_avg_samples = 10,					-- The number of samples to average for disk I/O monitoring.
@@ -26,18 +32,12 @@ temperature_unit = 'celsius',				-- fahrenheit or celsius
 text_buffer_size = 2048,					-- size of buffer for display of content of large variables - default 256
 update_interval = 1,						-- update interval
 imlib_cache_size = 0,                       -- disable image cache to get a new Spotify cover per song
-
---Placement
-
 alignment = 'middle_right',		            -- top_left,top_middle,top_right,bottom_left,bottom_middle,bottom_right,middle_left,middle_middle,middle_right,none
 gap_x = 50,									-- pixels between right or left border
 gap_y = 0,									-- pixels between bottom or left border
 minimum_height = 600,						-- minimum height of window
 minimum_width = 240,						-- minimum height of window
 maximum_width = 260,						-- maximum height of window
-
---Graphical
-
 border_inner_margin = 10, 					-- margin between border and text
 border_outer_margin = 1, 					-- margin between border and edge of window
 border_width = 1, 							-- border width in pixels
@@ -54,9 +54,6 @@ draw_graph_borders = true,					-- draw borders around graphs
 draw_shades = false,						-- draw shades
 draw_outline = false,						-- draw outline
 stippled_borders = 0,						-- dashing the border
-
---Textual
-
 extra_newline = false,						-- extra newline at the end
 format_human_readable = true,				-- KiB, MiB rather then number of bytes
 max_text_width = 0,							-- 0 will make sure line does not get broken if width too smal
@@ -69,9 +66,6 @@ uppercase = false,							-- uppercase or not
 use_spacer = 'none',						-- adds spaces around certain objects to align - default none
 use_xft = true,								-- xft font - anti-aliased font
 xftalpha = 1,								-- alpha of the xft font - between 0-1
-
---Windows
-
 own_window = true,							-- create your own window to draw
 own_window_argb_value =230,			        -- real transparency - composite manager required 0-255
 own_window_argb_visual = true,				-- use ARGB - composite manager required
@@ -80,6 +74,8 @@ own_window_hints = 'undecorated,below,above,sticky,skip_taskbar,skip_pager',  --
 own_window_transparent = false,				-- if own_window_argb_visual is true sets background opacity 0%
 own_window_title = 'system_conky',			-- set the name manually  - default conky "hostname"
 own_window_type = 'normal',				    -- if own_window true options are: normal/override/dock/desktop/panel
+
+-- CONKYMATIC VARIABLES -------------------------------------------------------------
 
 color0 = '_VAR:COLOR_TIME_',                         --time
 color1 = '_VAR:COLOR_DATE_',                         --date
@@ -92,22 +88,20 @@ color7 = '_VAR:COLOR_HR_',                         --hr color
 color8 = '_VAR:COLOR_BARS_NORM_',                         --bars normal
 color9 = '_VAR:COLOR_BARS_WARN_',                         --bars warning
 default_color = '_VAR:COLOR_BORDER_',                  -- default color and window border color
-own_window_colour = '_VAR:COLOR_BACKGROUND_',	                   -- set colour if own_window_transparent no
-
-
+own_window_colour = '_VAR:COLOR_BACKGROUND_',	            -- set colour if own_window_transparent no
 
 };
 
 conky.text = [[
 #
-# EXECUTE EXTERNAL SCRIPTS --------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 #
-# Fetch the data from Yahoo weather every 5 minutes and cache the json file in .cache
+# EXECUTE EXTERNAL SCRIPTS
 #
+# DOWNLOAD AND CACHE WEATHER DATA FROM YAHOO EVERY 5 MINUTES
 ${execi 300 curl -f -s -S -k "_VAR:API_URL" -o _VAR:JSON_WEATHER_FILEPATH_}\
 #
-# Generate the 6 weather icons that reflect the current weather and 5 day forecast.
-# These PNGs get cached in the .cache folder.
+# COPY AND CACHE THE CURRENT WEATHER AND FORECAST ICONS
 ${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.condition.code _VAR:JSON_WEATHER_FILEPATH_   | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/weather.png}\
 ${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.forecast[1].code _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/forecast1.png}\
 ${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.forecast[2].code _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/forecast2.png}\
@@ -117,74 +111,88 @@ ${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item
 #
 # -----------------------------------------------------------------------------------------
 # 
-# Time and date
-${font Roboto:size=24}${color0}${alignc}\
-${voffset -4}${time %I:%M %p}\
+# CURRENT TIME
+${font Roboto:size=24}${color0}${alignc}${voffset -4}\
+${time %I:%M %p}\
 ${font}${color}
-${voffset 2}${color1}${font Roboto:size=13}${alignc}\
+#
+# CURRENT DATE
+${font Roboto:size=13}${alignc}${voffset 2}${color1}\
 ${time %B %d, %Y}\
 ${font}${color}
+#
+# HORIZONTAL RULE
 ${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
-# Sunrise and sunset
-${font Roboto:size=11:weight:bold}${color3}\
-${alignc}SUNRISE       SUNSET
+# SUNRISE AND SUNSET
+${font Roboto:size=11:weight:bold}${color3}${alignc}\
+SUNRISE       SUNSET
 ${color}\
-${color2}\
-${voffset 1}${alignc} \
+${voffset 1}${alignc}${color2} \
+# Use Awk to capitalize AM/PM
 ${execi 300 jq -r .query.results.channel.astronomy.sunrise _VAR:JSON_WEATHER_FILEPATH_ | awk '{ print toupper($0) }'}      \
 ${execi 300 jq -r .query.results.channel.astronomy.sunset  _VAR:JSON_WEATHER_FILEPATH_ | awk '{ print toupper($0) }'}\
 ${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
-# Current temperature
-${font Roboto:size=20}${color2}\
-${voffset -4}${offset 47}\
+# CURRENT TEMPERATURE
+${font Roboto:size=20}${color2}${voffset -4}${offset 47}\
 ${execi 300 jq .query.results.channel.item.condition.temp _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])' #remove quotes}°\
 ${font}${color}
 #
-# Display the weather icon from the cache file
+# CURRENT WEATHER ICON
+# The icon gets pulled from from the cache file
 ${image _VAR:CACHE_DIRECTORY_/weather.png -p 134,140 -s 56x56}
 #
-# High and low temps. Data gets pulled from the json file. We use awk to round the number
-${font Roboto:size=10:weight:bold}${color2}\
-${voffset -24}${offset 40}\
+# HIGH AND LOW TEMPERATURE DATA 
+# Data gets pulled from the json file. We use awk to round the number
+${font Roboto:size=10:weight:bold}${color2}${voffset -24}${offset 40}\
 ${execi 300 jq -r .query.results.channel.item.forecast[0].low _VAR:JSON_WEATHER_FILEPATH_  | awk '{print int($1+0.5)}' # round num}°  |  \
 ${execi 300 jq -r .query.results.channel.item.forecast[0].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
 ${font}${color}
 #
-# Weather description. Data gets pulled from json file. We use awk to capitalize each word.
-${font Roboto:size=14}${alignc}${color2}\
-${voffset 0}\
+# WEATHER DESCRIPTION
+# Data gets pulled from json file. We use awk to capitalize each word.
+${font Roboto:size=14}${alignc}${color2}${voffset 0}\
 ${execi 300 jq -r .query.results.channel.item.condition.text _VAR:JSON_WEATHER_FILEPATH_ | sed -e "s/\b\(.\)/\u\1/g"}\
 ${font}${color}
 #
-#
-# City, longitude and latitude
-${font Roboto:size=10:weight:bold}${alignc}${color2}\
-${voffset 2}\
+# CITY NAME
+# Data gets pulled from json file.
+${font Roboto:size=10:weight:bold}${alignc}${color2}${voffset 2}\
 ${execi 300 jq -r .query.results.channel.location.city _VAR:JSON_WEATHER_FILEPATH_},\
 ${execi 300 jq -r .query.results.channel.location.region _VAR:JSON_WEATHER_FILEPATH_}  \
+#
+#LONGITUDE AND LATITUDE
+# Round the longitude and latitude values up
 ${execi 300 jq -r .query.results.channel.item.lat _VAR:JSON_WEATHER_FILEPATH_  | awk '{print int($1+0.5)}' # round num} N  \
 ${execi 30 jq -r .query.results.channel.item.long _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num} W    \
 ${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${voffset -2}${color7}${hr 2}
 #
+# -----------------------------------------------------------------------------------------
 #
-#
-# Display the weather forecast icons
+# WEATHER FORECAST ICONS
 ${image _VAR:CACHE_DIRECTORY_/forecast1.png -p 6,261 -s 35x35}\
 ${image _VAR:CACHE_DIRECTORY_/forecast2.png -p 56,261 -s 35x35}\
 ${image _VAR:CACHE_DIRECTORY_/forecast3.png -p 104,261 -s 35x35}\
 ${image _VAR:CACHE_DIRECTORY_/forecast4.png -p 152,261 -s 35x35}\
 ${image _VAR:CACHE_DIRECTORY_/forecast5.png -p 200,261 -s 35x35}\
 #
-#
-# 5 day forecast temps. Data gets pulled from the forecast json file. We use awk to round the number
+# 5 DAY FORECAST TEMPERATURES
+# Data gets pulled from the forecast json file. We use awk to round the number
 ${font SourceSansPro:size=11:weight:bold}${color2}\
 ${voffset 33}\
 ${goto 27}${execi  300 jq -r .query.results.channel.item.forecast[1].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
@@ -194,7 +202,7 @@ ${goto 172}${execi 300 jq -r .query.results.channel.item.forecast[4].high _VAR:J
 ${goto 222}${execi 300 jq -r .query.results.channel.item.forecast[5].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
 ${font}${color}
 #
-# Weekday names
+# WEEKDAY NAMES
 ${font SourceSansPro-:size=11:weight:bold}${color2}\
 ${voffset -2}\
 ${goto 25}${execi  300 jq -r  .query.results.channel.item.forecast[1].day _VAR:JSON_WEATHER_FILEPATH_ }\
@@ -203,59 +211,89 @@ ${goto 119}${execi 300 jq -r  .query.results.channel.item.forecast[3].day _VAR:J
 ${goto 168}${execi 300 jq -r  .query.results.channel.item.forecast[4].day _VAR:JSON_WEATHER_FILEPATH_ }\
 ${goto 217}${execi 300 jq -r  .query.results.channel.item.forecast[5].day _VAR:JSON_WEATHER_FILEPATH_ }\
 ${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${voffset -5}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
-# Battery status bar.
+# BATTERY STATUS BAR
 # Note: If the battery level drops below 20% it changes to red
- ${font Roboto:size=11:weight:bold}\
-${if_match ${battery_percent} < 20}\
-${color9}${battery_bar 10,134 BAT0}    ${color3}BAT${alignr}${color9}${battery_percent}%\
-${else}${color8}${battery_bar 10,134 BAT0}   ${color3}BAT  ${alignr}${color6}${battery_percent}%\
+${font Roboto:size=11:weight:bold} \
+${if_match ${battery_percent} < 20}${color9}\
+${battery_bar 10,134 BAT0}    ${color3}BAT${alignr}${color9}${battery_percent}%\
+${else}${color8}\
+${battery_bar 10,134 BAT0}   ${color3}BAT  ${alignr}${color6}${battery_percent}%\
 ${endif}\
 ${font}
 #
-# CPU bar.
+# CPU BAR
 # Note: If greater than 80% of the CPU is being used it turns red
- ${font Roboto:size=11:weight:bold}\
-${color8}${cpubar cpu0 10,134}   \
-${color3}CPU\
-${alignr}${color6}${cpu cpu0}% \
+${font Roboto:size=11:weight:bold}${color8} \
+${cpubar cpu0 10,134}   \
+${color3}CPU${alignr}\
+${color6}${cpu cpu0}% \
 ${font}
 #
-# RAM bar
- ${font Roboto:size=11:weight:bold}\
-${color8}${membar 10,134}   \
-${color3}RAM$\
-{alignr}${color6}${memperc}% \
+# RAM BAR
+${font Roboto:size=11:weight:bold}${color8} \
+${membar 10,134}   \
+${color3}RAM${alignr}${color6}\
+${memperc}% \
 ${font}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${voffset -5}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
 # Used and free space on root, home, and swap
-${voffset -2}${font Roboto:size=11:weight:bold}\
- ${color3}${fs_used} Used ${alignr}${color6}${fs_free} Free \
-#${color3}Home ${offset 15}${color1}${fs_used /home} Used ${alignr}${color6}${fs_free /home} Free 
+${voffset -2}${font Roboto:size=11:weight:bold}${color3} \
+${fs_used} Used ${alignr}${color6}${fs_free} Free \
+#
+# Un-comment if your home directory is in its own partition.
+# NOTE: You will have to update the position of the color palette image at the bottom
+#${color3}Home ${offset 15}${color1}${fs_used /home} Used ${alignr}${color6}${fs_free /home} Free \
+#
 ${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
-# Uptime, CPU temp, CPU frequency, fan speed
-${voffset -2}${font Roboto:size=11:weight:bold}\
- ${color3}Uptime ${alignr}${color6} $uptime_short 
- ${color3}Processes${alignr}${color6}${processes} 
+# UPTIME AND TOTAL NUMBER OF PROCESSES
+${voffset -2}${font Roboto:size=11:weight:bold}${color3} \
+ Uptime ${alignr}${color6} $uptime_short ${color3}
+ Processes${alignr}${color6}${processes} 
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${color7}${hr 2}
- ${color3}CPU Temp ${alignr}${color6}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
- ${color3}Fan Speed ${alignr}${color6}${freq_g} RPM \
+#
+# -----------------------------------------------------------------------------------------
+#
+# CPU TEMPERATURE AND FAN SPEED
+${color3} CPU Temp ${alignr}${color6}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
+${color3} Fan Speed ${alignr}${color6}${freq_g} RPM \
 ${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
-# CPU usage. Top 6 processes
+# CPU USAGE
+# Top 6 processes
 ${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
  CPU${alignr}${color6}Intel i7 
  ${color4}${top name 1}${alignr}${color6}${top cpu 1}% 
@@ -265,11 +303,16 @@ ${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
  ${color4}${top name 5}${alignr}${color6}${top cpu 5}% 
  ${color4}${top name 6}${alignr}${color6}${top cpu 6}% \
 ${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
-# Memory usage. Top 6 applications
+# MEMORY USAGE
+# Top 6 applications
 ${voffset -2}${font Roboto:size=11:weight:bold}\
  ${color3}Memory${alignr}${color6}${memmax}  
  ${color4}${top_mem name 1}${alignr}${alignr}${color6}${top_mem mem 1}% 
@@ -280,17 +323,21 @@ ${voffset -2}${font Roboto:size=11:weight:bold}\
  ${color4}${top_mem name 6}${alignr}${alignr}${color6}${top_mem mem 6}% 
  ${color3}Total Used${alignr}${color6}${mem} \
 ${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
 ${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
-# Package updates
-${font Roboto:size=11:weight:bold}\
- ${color3}Package Updates${alignr}${color6}${execi 1800 checkupdates | wc -l} \
+# PACKAGE UPDATES
+${font Roboto:size=11:weight:bold}${color3} \
+Package Updates${alignr}${color6}${execi 1800 checkupdates | wc -l} \
 ${font}${color}
 #
 # -----------------------------------------------------------------------------------------
 #
-# Display the color palette
+# COLOR PALETTE IMAGE
 ${voffset -26}${image _VAR:COLOR_PALETTE_FILEPATH_ -p 13,972}\
 ]]
