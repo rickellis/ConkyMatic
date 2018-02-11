@@ -38,7 +38,7 @@ __Important:__ Before running ConkyMatic make a backup copy of your .conkyrc fil
 
 
 ## Customization
-In the __Templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some variables that get replaced with the color values from the script. A list of available variables can be found below.
+In the __Templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some pseudo-variables that get replaced with the color values from the script. A list of available variables can be found below.
 
 Additional templates can be created and added to the __Templates__ folder. If more than one template is in the folder, when you run the __conkymatic.sh__ script via your terminal you'll be given a choice of templates. Hitting __ENTER__ in the terminal will auto-select the template named __default.conky__, or you can type the name of the one you prefer to run.
 
@@ -71,7 +71,7 @@ The template variables are just text placeholders which get replaced when the sc
     _VAR:COLOR_BORDER_
     _VAR:COLOR_BACKGROUND_
 
-In addition, the following variables are available:
+In addition, the following path variables are available:
 
     _VAR:JSON_FILEPATH_
     _VAR:CACHE_DIRECTORY_
@@ -81,9 +81,9 @@ In addition, the following variables are available:
 
 ## License
 
-Creative Commons Attribution 4.0:
+MIT License
 
-https://creativecommons.org/licenses/by/4.0/
+https://opensource.org/licenses/MIT
 
 You may use the source code in any manner you choose, as long as appropriate credit is given.
 
