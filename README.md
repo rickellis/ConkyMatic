@@ -30,12 +30,16 @@ Just clone the package, update the config variables at the top of __conkymatic.s
 
 __Important:__ Before running ConkyMatic make a backup copy of your .conkyrc file since it will get overwritten. 
 
+<img src="https://i.imgur.com/Za81gmK.png" />
+
+<img src="https://i.imgur.com/Z6UPjym.png" />
+
 ## Customization
 In the __templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some variables that get replaced with the color values from the script. A list of available variables can be found below.
 
 Additional templates can be added to the __Templates__ folder. If more than one template is in the folder, when you run the __conkymatic.sh__ script via your terminal you'll be given a choice of templates
 
-## ConkyMatic terminal alias
+## ConkyMatic Terminal Alias
 To make running the script faster you can add the following alias to your __.bashrc__ file:
 
     function conkymatic() {
@@ -43,6 +47,8 @@ To make running the script faster you can add the following alias to your __.bas
     }
 
 Then just enter __conkymatic__ from your terminal.
+
+__Note:__ Make sure you change the path in the function to reflect your particular path.
 
 ## Template Variables
 The template variables are just text placeholders which get replaced when the script gets run. The following variables are available for use.
@@ -62,7 +68,7 @@ The template variables are just text placeholders which get replaced when the sc
     _VAR:COLOR_BORDER_
     _VAR:COLOR_BG_
 
-Or, if you prefer you can use numbered values which are mapped to the respective ${colorx} variables.
+Or, if you prefer you can use numbered values which are mapped to the respective ${colorX} variables.
 
     _VAR:COLOR_0_
     _VAR:COLOR_1_
@@ -76,13 +82,7 @@ Or, if you prefer you can use numbered values which are mapped to the respective
     _VAR:COLOR_9_
 
 
-<img src="https://i.imgur.com/Za81gmK.png" />
 
-
-
-
-
-<img src="https://i.imgur.com/Z6UPjym.png" />
 
 <img src="https://i.imgur.com/lKZKCx3.png" />
 
