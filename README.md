@@ -23,11 +23,16 @@ The entires sequence takes the script about 10 seconds, making it very fast and 
 
 <img src="https://i.imgur.com/rsVC1AX.png" />
 
-<img src="https://i.imgur.com/YBHxfg1.png" />
-
-<img src="https://i.imgur.com/mBXnK3t.png" />
-
 ## Requirements
 * A Linux installation with Conky installed.
 
 * ImageMagick to generate the color palette PNG and weather icons. Note: If Inkscape is installed ConkyMatic will use it for the weather icon rendering since it has better SVG handling than ImageMagic.
+
+
+
+
+
+
+<img src="https://i.imgur.com/YBHxfg1.png" />
+
+<img src="https://i.imgur.com/mBXnK3t.png" />
