@@ -18,6 +18,8 @@ The entires sequence takes the script about 10 seconds, making it very fast and 
 
 ### [YouTube Video](https://youtu.be/sq9HvFkPffM)
 
+<img src="https://i.imgur.com/Za81gmK.png" />
+
 ## Requirements
 * A __Linux__ installation with __Conky__ installed.
 
@@ -30,9 +32,6 @@ Just clone the package, update the config variables at the top of __conkymatic.s
 
 __Important:__ Before running ConkyMatic make a backup copy of your .conkyrc file since it will get overwritten. 
 
-<img src="https://i.imgur.com/Za81gmK.png" />
-
-<img src="https://i.imgur.com/Z6UPjym.png" />
 
 ## Customization
 In the __templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some variables that get replaced with the color values from the script. A list of available variables can be found below.
@@ -82,7 +81,7 @@ Or, if you prefer you can use numbered values which are mapped to the respective
     _VAR:COLOR_9_
 
 
-
+<img src="https://i.imgur.com/Z6UPjym.png" />
 
 <img src="https://i.imgur.com/lKZKCx3.png" />
 
