@@ -13,7 +13,7 @@ VERSION="1.0.0"
 #  ConkyMatic does the following:
 #
 #    * Creates a 16 color palette image from the current wallpaper.
-#    * Extracts the hex color value of each of the color palette images.
+#    * Extracts the hex color values of the palette.
 #    * Generates a .conkyrc file using colors randomly selected from the palette.
 #    * Exports a set of colorized weather icons.
 #    * Copies the new .conkyrc file to the home folder.
