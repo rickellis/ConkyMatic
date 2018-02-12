@@ -77,18 +77,18 @@ own_window_type = 'normal',
 
 -- CONKYMATIC VARIABLES -------------------------------------------------------------
 
-color0 = '_VAR:COLOR_TIME_',
-color1 = '_VAR:COLOR_DATE_',
-color2 = '_VAR:COLOR_WEATHER_',
-color3 = '_VAR:COLOR_HEADING_',
-color4 = '_VAR:COLOR_SUBHEADING_',
-color5 = '_VAR:COLOR_TEXT_',
-color6 = '_VAR:COLOR_DATA_',
-color7 = '_VAR:COLOR_HR_',
-color8 = '_VAR:COLOR_BARS_NORM_',
-color9 = '_VAR:COLOR_BARS_WARN_',
-default_color = '_VAR:COLOR_BORDER_',
-own_window_colour = '_VAR:COLOR_BACKGROUND_',
+color0 = '_VAR:COLOR_TIME_', -- Time
+color1 = '_VAR:COLOR_DATE_', -- Date
+color2 = '_VAR:COLOR_WEATHER_', -- Weather
+color3 = '_VAR:COLOR_HEADING_', -- Headings
+color4 = '_VAR:COLOR_SUBHEADING_', -- Sub-headings
+color5 = '_VAR:COLOR_TEXT_', -- Text (extra. Not used in default template)
+color6 = '_VAR:COLOR_DATA_', -- Data values
+color7 = '_VAR:COLOR_HR_', -- Horizontal rules
+color8 = '_VAR:COLOR_BARS_NORM_', -- Data bars, normal state
+color9 = '_VAR:COLOR_BARS_WARN_', -- Data bars, warning state
+default_color = '_VAR:COLOR_BORDER_', -- Window border
+own_window_colour = '_VAR:COLOR_BACKGROUND_', -- Window background color
 
 };
 
