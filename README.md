@@ -16,7 +16,7 @@
 
 The entire sequence takes the script about 10 seconds, making it very fast and easy to build a fresh conky every time you change your wallpaper. And since the colors are randomly selected, running the script multiple times with the same wallpaper will yield different results.
 
-### [YouTube Video](https://youtu.be/1oh5d-5QJ0U)
+### [YouTube Video](https://youtu.be/th6-7pRe-l4)
 
 <img src="https://i.imgur.com/Za81gmK.png" />
 
