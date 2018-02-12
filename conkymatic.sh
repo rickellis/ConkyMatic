@@ -1,34 +1,32 @@
 #!/usr/bin/env bash
-#----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
+#    ___          _        __  __      _   _    
+#   / __|___ _ _ | |___  _|  \/  |__ _| |_(_)__ 
+#  | (__/ _ \ ' \| / / || | |\/| / _` |  _| / _|
+#   \___\___/_||_|_\_\\_, |_|  |_\__,_|\__|_\__|
+#                     |__/ Automatic color generator
 #
-# conkymatic.sh
-#
+#-----------------------------------------------------------------------------------
 VERSION="1.0.0"
+#-----------------------------------------------------------------------------------
 #
-# Conky automatic color generator based on currrent wallpaper.
+#  ConkyMatic does the following:
 #
-# by Rick Ellis
-# https://github.com/rickellis
+#    * Creates a 16 color palette image from the current wallpaper.
+#    * Extracts the hex color value of each of the color palette images.
+#    * Generates a .conkyrc file using colors randomly selected from the palette.
+#    * Exports a set of colorized weather icons.
+#    * Copies the new .conkyrc file to the home folder.
+#    * Relaunches the Conky application.
 #
-# License: MIT
-#
-# Generates a .conkyrc file that gets colorized based on the predominant colors
-# in the current wallpaper.
-#
-# Dependencies
-#   1. Curl
-#   2. ImageMagick (required). Used to generate color palettes.
-#   3. Inkscape (optional). If installed, will use it to render SVG to PNG.
-#
-# Usage: 
-#
-#   cd /path/to/ConkyMatic/
-#
-#   ./conkymatic.sh
-#
-#----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------
+# Author:   Rick Ellis
+# URL:      https://github.com/rickellis
+# License:  MIT
+#-----------------------------------------------------------------------------------
+
+
 # USER CONFIGURATION VARIABLES
-#----------------------------------------------------------------------------------------
 
 # Your city for weather data
 YOUR_CITY="laramie"
@@ -49,7 +47,6 @@ WALLPAPER_PATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/back
 
 # Basepath to the directory containing the various assets.
 # Do not change this unless you need a different directory structure.
-#BASEPATH="${PWD}"
 # This allows the basepath to be correct if this script gets aliased in .bashrc
 BASEPATH=$(dirname -- $(readlink -fn -- "$0"))
 
