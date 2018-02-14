@@ -269,7 +269,7 @@ ${voffset -2}${color7}${hr 2}
 # -----------------------------------------------------------------------------------------
 #
 # UPTIME AND TOTAL NUMBER OF PROCESSES
-${voffset -2}${font Roboto:size=11:weight:bold}${color3} \
+${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
  Uptime ${alignr}${color6} $uptime_short ${color3}
  Processes${alignr}${color6}${processes} 
 #
