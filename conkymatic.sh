@@ -21,7 +21,7 @@ VERSION="1.0.0"
 #
 #-----------------------------------------------------------------------------------
 # Author:   Rick Ellis
-# URL:      https://github.com/rickellis
+# URL:      https://github.com/rickellis/conkymatic
 # License:  MIT
 #-----------------------------------------------------------------------------------
 
@@ -81,11 +81,11 @@ COLOR_PALETTE_WIDTH="224"
 # END OF USER CONFIGURATION VARIABLES
 #
 
-echo ""
+echo
 echo "-----------------------------------------------------------------------"
 echo " Welcome to ConkyMatic Version ${VERSION}"
 echo "-----------------------------------------------------------------------"
-echo ""
+echo
 
 # DO THE VARIOUS DIRECTORIES SPECIFIED ABOVE EXIST?
 
@@ -97,7 +97,7 @@ fi
 # Does the cache directory exist?
 if  ! [[ -d ${CACHE_DIRECTORY} ]]; then
     echo " The cache directory path does not exist. Aborting..."
-    echo ""
+    echo
     exit 1
 fi
 
@@ -109,7 +109,7 @@ fi
 # Does the template directory exist?
 if  ! [[ -d ${TEMPLATE_DIRECTORY} ]]; then
     echo " The template directory path does not exist. Aborting..."
-    echo ""
+    echo
     exit 1
 fi
 
@@ -132,7 +132,7 @@ fi
 # Does the PNG directory exist?
 if  ! [[ -d ${WEATHER_ICONS_PNG_DIRECTORY} ]]; then
     echo " The PNG directory path does not exist. Aborting..."
-    echo ""
+    echo
     exit 1
 fi
 
@@ -141,14 +141,14 @@ fi
 # Is Curl installed?
 if ! [[ $(type curl) ]]; then
     echo " Curl does not appear to be installed. Aborting..."
-    echo ""
+    echo
     exit 1;
 fi
 
 # Is ImageMagick installed?
 if ! [[ $(type command) ]]; then
     echo " ImageMagick does not appear to be installed. Aborting..."
-    echo ""
+    echo
     exit 1;
 fi
 
@@ -177,7 +177,7 @@ TMPLN="${#TMPL_ARRAY[@]}"
 # If template directory is empty admonish them harshly
 if [[ ${TMPLN} == 0 ]]; then
     echo "There are no conky templates in the Templates directory. Aborting..."
-    echo ""
+    echo
     exit 1
 fi
 
@@ -188,9 +188,9 @@ read CONSENT
 
 # Validate consent
 if ! [[ -z ${CONSENT} ]]; then
-    echo ""
+    echo
     echo " Goodbye..."
-    echo ""
+    echo
     exit 1
 fi
 
@@ -204,7 +204,7 @@ if [[ ${TMPLN} == 1 ]]; then
 
 else  # Multiple templates in the Templates folder
 
-    echo ""
+    echo
     echo " Please select the template NUMBER you would like to use."
     echo " Or hit ENTER to select default.conky:"
 
@@ -225,20 +225,20 @@ else  # Multiple templates in the Templates folder
 
         # Does the default exist?
         if ! [ -e ${TEMPLATE_SELECTION} ]; then
-            echo ""
+            echo
             echo " Unable to find the default template"
             echo " The quick selection feature requires Templates/default.conky"
             echo " Aborting..."
-            echo ""
+            echo
             exit 1
         fi
     else  # The user chose a specific template
 
         # Did they enter an integer?
         if [[ $CHOICE =~ ^?[0-9]+$ ]]; then
-            echo ""
+            echo
             echo " You did not select a valid template number. Aborting..."
-            echo ""
+            echo
             exit 1
         fi
 
@@ -249,7 +249,7 @@ else  # Multiple templates in the Templates folder
 
         # Does the choice exist?
         if ! [ -e ${TEMPLATE_SELECTION} ]; then
-            echo ""
+            echo
             echo " The choice you entered does not correlate to a template. Aborting..."
             echo " Aborting..."
             exit 1
@@ -261,7 +261,7 @@ echo " Here we go!"
 
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
 
-echo ""
+echo
 echo " Downloading Yahoo weather JSON data"
 
 # Curl argumnets:
@@ -279,7 +279,7 @@ echo "${CURL}" > ${CACHE_DIRECTORY}/${JSON_CACHE_FILE}
 
 # GENERATE COLOR PALETTE PNG ------------------------------------------------------------
 
-echo ""
+echo
 echo " Generating color palette based on the wallpaper's 16 most common colors"
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
@@ -294,7 +294,7 @@ ${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG}
 
 # GENERATE AUTOMATIC COLORS -------------------------------------------------------------
 
-echo ""
+echo
 echo " Extracting hex color values from color palette image"
 
 # Create a micro version of the color palette PNG: 1px x 16px 
@@ -453,7 +453,7 @@ rm ${MICROIMG}
 
 # SET COLOR VARIABLES ---------------------------------------------------------------
 
-echo ""
+echo
 echo " Building a randomized color map"
 
 # All colors are randomly selected from a range. We can't have complete
@@ -534,9 +534,9 @@ done
 
 # CONVERT SVG TO PNG  -------------------------------------------------------------------
 
-echo ""
+echo
 echo " Exporting weather icons using $converter"
-echo ""
+echo
 
 # We now run either ImageMagick or Inkscape to turn the SVG
 # images into PNGs with the auto-selected color value.
@@ -591,8 +591,8 @@ rm -R "${TEMPDIR}"
 # CACHE THE CURRENT WEATHER & FORECAST ICONS --------------------------------------------
 # These are the icons that get displayed in the conky.
 
-echo ""
-echo ""
+echo
+echo
 echo " Caching the current weather and forecast icons"
 
 # Fetch the weather and forecast codes from the JSON file.
@@ -615,7 +615,7 @@ cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE5}.png ${CACHE_DIRECTORY}/for
 # REPLACE TEMPLATE VARIABLES ------------------------------------------------------------
 # Now it's time to insert the randomly gathered color values into the template
 
-echo ""
+echo
 echo " Inserting color values into the conky template"
 
 # Before replacing vars make a copy of the template
@@ -655,24 +655,24 @@ sed -i -e "s|_VAR:COLOR_PALETTE_FILEPATH_|${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG
 
 # REPLACE CONKYRC FILE AND RELAUNCH -----------------------------------------------------
 
-echo ""
+echo
 echo " Shutting down Conky"
 pkill conky
 
-echo ""
+echo
 echo " Exporting new .conkyrc file"
 
 # Copy conkyrc file to its proper location
 cp ${CACHE_DIRECTORY}/conkyrc ~/.conkyrc
 
 # Launch conky
-echo ""
+echo
 echo " Relaunching Conky"
 conky 2>/dev/null
 
 # Remove the temporary template file
 rm ${CACHE_DIRECTORY}/conkyrc
 
-echo ""
+echo
 echo " Done!"
-echo ""
+echo
