@@ -7,7 +7,7 @@
 #                     |__/ Automatic color generator
 #
 #-----------------------------------------------------------------------------------
-VERSION="1.0.1"
+VERSION="1.0.2"
 #-----------------------------------------------------------------------------------
 #
 #  ConkyMatic does the following:
@@ -81,11 +81,42 @@ COLOR_PALETTE_WIDTH="224"
 # END OF USER CONFIGURATION VARIABLES
 #
 
+# TEXT COLORS ----------------------------------------------------------------------
+
+DFT="\033[39m" # Terminal default color
+BLK="\033[30m" # Black
+GRY="\033[37m" # Grey
+RED="\033[91m" # Red
+GRN="\033[92m" # Green
+BLU="\033[94m" # Blue
+YEL="\033[93m" # Yellow
+MAG="\033[95m" # Magenta
+CYN="\033[96m" # Cyan
+WHT="\033[97m" # White
+
+# BACKGROUND COLORS ----------------------------------------------------------------
+
+BDFT="\033[49m" # Terminal default color
+BBLK="\033[40m" # Black
+BGRY="\033[47m" # Grey
+BRED="\033[41m" # Red
+BGRN="\033[42m" # Green
+BBLU="\033[44m" # Blue
+BYEL="\033[42m" # Yellow
+BMAG="\033[45m" # Magenta
+BCYN="\033[46m" # Cyan
+BWHT="\033[107m" # White
+
+# COLOR RESET ----------------------------------------------------------------------
+
+RST="\033[0m"
+
+
+clear
 echo
-echo "-----------------------------------------------------------------------"
-echo " Welcome to ConkyMatic Version ${VERSION}"
-echo "-----------------------------------------------------------------------"
+echo -e "${BGRN}${WHT}                    ConkyMatic VERSION ${VERSION}                         ${RST}"
 echo
+
 
 # DO THE VARIOUS DIRECTORIES SPECIFIED ABOVE EXIST?
 
@@ -183,8 +214,7 @@ fi
 
 # CONSENT -------------------------------------------------------------------------------
 
-echo " Hit ENTER to begin, or any other key to abort"
-read CONSENT
+read -p " Hit ENTER to begin, or any other key to abort: " CONSENT
 
 # Validate consent
 if ! [[ -z ${CONSENT} ]]; then
@@ -257,6 +287,7 @@ else  # Multiple templates in the Templates folder
     fi
 fi
 
+echo
 echo " Here we go!"
 
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
@@ -280,7 +311,7 @@ echo "${CURL}" > ${CACHE_DIRECTORY}/${JSON_CACHE_FILE}
 # GENERATE COLOR PALETTE PNG ------------------------------------------------------------
 
 echo
-echo " Generating color palette based on the wallpaper's 16 most common colors"
+echo " Generating color palette based on the current wallpaper colors"
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
 convert ${WALLPAPER_PATH} \
@@ -579,7 +610,7 @@ for filepath in "${TEMPDIR}"/*.svg
     fi
 
     # Increment the progress bar with each iteration
-    echo -ne " (Exporting image ${i}) ${str}\r"
+    echo -ne " Exporting Image ${i} ${str}\r"
     ((i++))
     str="${str}."
 done
