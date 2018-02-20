@@ -7,7 +7,7 @@
 #                     |__/ Automatic color generator
 #
 #-----------------------------------------------------------------------------------
-VERSION="1.0.3"
+VERSION="1.0.4"
 #-----------------------------------------------------------------------------------
 #
 #  ConkyMatic does the following:
@@ -85,7 +85,6 @@ COLOR_PALETTE_WIDTH="224"
 
 # Generates heading with a background color and white text, centered.
 function _heading() {
-
     if [ -z "$1" ] || [ -z "$2" ]; then
         echo 'Usage: heading <color> "My cool heading"'
         exit 1
@@ -94,63 +93,84 @@ function _heading() {
     color=${1}
     color=${color,,} # Lowercase the color
     text=${2}
-    length=74 # Overal length of heading
     reset="\033[0m"
-    
-    case "$color" in
-    black | blk)
-        color="\033[40m\033[97m" # Black with white text
-    ;;
-    grey | gry)
-        color="\033[47m\033[100m" # Grey with white text
-    ;;
-    red)
-        color="\033[41m\033[97m" # Red with white text
-    ;;
-    darkred | dred)
-        color="\033[48;5;52m\033[97m" # Dark red with white text
-    ;;
-    green | grn)
-        color="\033[42m\033[97m" # Green with white text
-    ;;
-    blue | blu)
-        color="\033[44m\033[97m" # Blue with white text
-    ;;
-    yellow | yel)
-        color="\033[42m\033[97m" # Yellow with white text
-    ;;
-    orange | org)
-        color="\033[48;5;202m\033[97m" # OrNGE with white text
-    ;;
-    olive | olv)
-        color="\033[48;5;58m\033[97m" # Yellow with white text
-    ;;
-    magenta | mag)
-        color="\033[45m\033[97m" # Magenta with white text
-    ;;
-    purple | pur)
-        color="\033[48;5;53m" # Purple with white text
-    ;;
-    cyan | cyn)
-        color="\033[46m\033[97m" # Cyan with white text
-    ;;
-    *)
-        color="\033[45m\033[97m" # Magenta with white text
-    ;;
-    esac
-    
-    # Get the lenghth of text string
-    # Divide 74 by the length.
-    # Divide it in half.
-    n=${#text}
-    l=$(( length - n  )) 
+
+    # Width of the terminal
+    twidth=$(tput cols) 
+    # Length of the header string
+    hlength=${#text}
+
+    # Set a minimum with for the background
+    if [ ! $twidth -gt $hlength ]; then
+        twidth=$hlength
+    fi
+
+    # Subtract header string from terminal width
+    # Divide that number in half. This becomes
+    # the padding on either side of the header
+    l=$(( twidth - hlength )) 
     d=$(( l / 2 ))
 
     declare padding
     for i in $(seq 1 ${d}); do padding+=" "; done;
 
+    # Depending on the length of the terminal relative to the length
+    # of the heading text we might end up one character off in our length. 
+    # To compensate we add a one space to the right padding.
+    padl=$padding
+    padr=$padding
+    plen=${#padding}
+    nlength=$(( plen * 2 + hlength ))
+    if [ $twidth -ne $nlength ]; then
+        padr+=" ";
+    fi
+
+    case "$color" in
+    grey | gry)
+        color="\033[48;5;240m\033[97m"
+    ;;
+    charcoal | chr)
+        color="\033[48;5;237m\033[97m"
+    ;;
+    red)
+        color="\033[48;5;1m\033[97m"
+    ;;
+    green | grn)
+        color="\033[48;5;22m\033[97m"
+    ;;
+    olive | olv)
+        color="\033[48;5;58m\033[97m"
+    ;;
+    blue | blu)
+        color="\033[44m\033[97m"
+    ;;
+    sky)
+        color="\033[48;5;25m\033[97m"
+    ;;
+    yellow | yel)
+        color="\033[42m\033[97m"
+    ;;
+    coral| crl)
+        color="\033[48;5;3m\033[97m"
+    ;;
+    orange | org)
+        color="\033[48;5;202m\033[97m"
+    ;;
+    magenta | mag)
+        color="\033[45m\033[97m"
+    ;;
+    purple | pur)
+        color="\033[48;5;53m"
+    ;;
+    cyan | cyn)
+        color="\033[46m\033[97m"
+    ;;
+    *)
+        color="\033[45m\033[97m"
+    ;;
+    esac
     echo
-    echo -e "${color}${padding}${text}${padding}${reset}"
+    echo -e "${color}${padl}${text}${padr}${reset}"
     echo
 }
 
