@@ -7,7 +7,7 @@
 #                     |__/ Automatic color generator
 #
 #-----------------------------------------------------------------------------------
-VERSION="1.0.2"
+VERSION="1.0.3"
 #-----------------------------------------------------------------------------------
 #
 #  ConkyMatic does the following:
@@ -81,42 +81,81 @@ COLOR_PALETTE_WIDTH="224"
 # END OF USER CONFIGURATION VARIABLES
 #
 
-# TEXT COLORS ----------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-DFT="\033[39m" # Terminal default color
-BLK="\033[30m" # Black
-GRY="\033[37m" # Grey
-RED="\033[91m" # Red
-GRN="\033[92m" # Green
-BLU="\033[94m" # Blue
-YEL="\033[93m" # Yellow
-MAG="\033[95m" # Magenta
-CYN="\033[96m" # Cyan
-WHT="\033[97m" # White
+# Generates heading with a background color and white text, centered.
+function _heading() {
 
-# BACKGROUND COLORS ----------------------------------------------------------------
+    if [ -z "$1" ] || [ -z "$2" ]; then
+        echo 'Usage: heading <color> "My cool heading"'
+        exit 1
+    fi
 
-BDFT="\033[49m" # Terminal default color
-BBLK="\033[40m" # Black
-BGRY="\033[47m" # Grey
-BRED="\033[41m" # Red
-BGRN="\033[42m" # Green
-BBLU="\033[44m" # Blue
-BYEL="\033[42m" # Yellow
-BMAG="\033[45m" # Magenta
-BCYN="\033[46m" # Cyan
-BWHT="\033[107m" # White
+    color=${1}
+    color=${color,,} # Lowercase the color
+    text=${2}
+    length=74 # Overal length of heading
+    reset="\033[0m"
+    
+    case "$color" in
+    black | blk)
+        color="\033[40m\033[97m" # Black with white text
+    ;;
+    grey | gry)
+        color="\033[47m\033[100m" # Grey with white text
+    ;;
+    red)
+        color="\033[41m\033[97m" # Red with white text
+    ;;
+    darkred | dred)
+        color="\033[48;5;52m\033[97m" # Dark red with white text
+    ;;
+    green | grn)
+        color="\033[42m\033[97m" # Green with white text
+    ;;
+    blue | blu)
+        color="\033[44m\033[97m" # Blue with white text
+    ;;
+    yellow | yel)
+        color="\033[42m\033[97m" # Yellow with white text
+    ;;
+    orange | org)
+        color="\033[48;5;202m\033[97m" # OrNGE with white text
+    ;;
+    olive | olv)
+        color="\033[48;5;58m\033[97m" # Yellow with white text
+    ;;
+    magenta | mag)
+        color="\033[45m\033[97m" # Magenta with white text
+    ;;
+    purple | pur)
+        color="\033[48;5;53m" # Purple with white text
+    ;;
+    cyan | cyn)
+        color="\033[46m\033[97m" # Cyan with white text
+    ;;
+    *)
+        color="\033[45m\033[97m" # Magenta with white text
+    ;;
+    esac
+    
+    # Get the lenghth of text string
+    # Divide 74 by the length.
+    # Divide it in half.
+    n=${#text}
+    l=$(( length - n  )) 
+    d=$(( l / 2 ))
 
-# COLOR RESET ----------------------------------------------------------------------
+    declare padding
+    for i in $(seq 1 ${d}); do padding+=" "; done;
 
-RST="\033[0m"
-
+    echo
+    echo -e "${color}${padding}${text}${padding}${reset}"
+    echo
+}
 
 clear
-echo
-echo -e "${BGRN}${WHT}                    ConkyMatic VERSION ${VERSION}                         ${RST}"
-echo
-
+_heading green "ConkyMatic VERSION ${VERSION}"
 
 # DO THE VARIOUS DIRECTORIES SPECIFIED ABOVE EXIST?
 
