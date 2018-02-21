@@ -83,101 +83,108 @@ COLOR_PALETTE_WIDTH="224"
 
 # ------------------------------------------------------------------------------
 
-# Generates heading with a background color and white text, centered.
-function _heading() {
+# Shell Heading Generator, from my script library
+# https://github.com/rickellis/Shell-Scripts/blob/master/sheading.sh
+sheading() {
+
     if [ -z "$1" ] || [ -z "$2" ]; then
-        echo 'Usage: heading <color> "My cool heading"'
+        echo 'Usage: heading <color> "Heading Text"'
         exit 1
     fi
 
-    color=${1}
-    color=${color,,} # Lowercase the color
-    text=${2}
-    reset="\033[0m"
+    color=${1,,}        # lowercase
+    hding=${2}          # Capture heading
+    hdlen=${#hding}     # heading length
+    twidt=$(tput cols)  # terminal width
 
-    # Width of the terminal
-    twidth=$(tput cols) 
-    # Length of the header string
-    hlength=${#text}
-
-    # Set a minimum with for the background
-    if [ ! $twidth -gt $hlength ]; then
-        twidth=$hlength
+    # Set the minimum width to match length of the heading
+    if [ ! $twidt -gt $hdlen ]; then
+        twidt=$hdlen
     fi
 
-    # Subtract header string from terminal width
-    # Divide that number in half. This becomes
-    # the padding on either side of the header
-    l=$(( twidth - hlength )) 
+    # Calculate the padding necessary on either side of the heading
+    l=$(( twidt - hdlen )) 
     d=$(( l / 2 ))
 
-    declare padding
-    for i in $(seq 1 ${d}); do padding+=" "; done;
+    padding=""
+    for i in $(seq 1 ${d}); do 
+        padding+=" "
+    done
 
-    # Depending on the length of the terminal relative to the length
-    # of the heading text we might end up one character off in our length. 
-    # To compensate we add a one space to the right padding.
-    padl=$padding
-    padr=$padding
-    plen=${#padding}
-    nlength=$(( plen * 2 + hlength ))
-    if [ $twidth -ne $nlength ]; then
-        padr+=" ";
+    # Thanks to Bash's auto-rounding, depending on the length of the
+    # terminal relative to the length of the heading we might end up
+    # one character off. To compensate we add one space if necessary
+    padextra=""
+    padlenth=${#padding}
+    totlenth=$(( padlenth * 2 + hdlen ))
+    if [ $twidt -ne $totlenth ]; then
+        padextra=" ";
     fi
 
+    # Random color generator
+    if [ "$color" == 'rnd' ] || [ "$color" == "rand" ] || [ "$color" == "random" ]; then
+        colors=(   
+                    "gry" 
+                    "chr"
+                    "red"
+                    "grn"
+                    "lim"
+                    "aqm"
+                    "olv"
+                    "blu"
+                    "sky"
+                    "cyn"
+                    "aqa"
+                    "gdr"
+                    "yel"
+                    "crl"
+                    "org"
+                    "pnk"
+                    "lav"
+                    "mag" 
+                    "pur"
+                )
+
+        color=${colors[$RANDOM % ${#colors[@]}]}
+    fi
+
+    # White text: \e[97m
+    # Black text: \e[38;5;232m
+
     case "$color" in
-    grey | gry)
-        color="\033[48;5;240m\033[97m"
-    ;;
-    charcoal | chr)
-        color="\033[48;5;237m\033[97m"
-    ;;
-    red)
-        color="\033[48;5;1m\033[97m"
-    ;;
-    green | grn)
-        color="\033[48;5;22m\033[97m"
-    ;;
-    olive | olv)
-        color="\033[48;5;58m\033[97m"
-    ;;
-    blue | blu)
-        color="\033[44m\033[97m"
-    ;;
-    sky)
-        color="\033[48;5;25m\033[97m"
-    ;;
-    yellow | yel)
-        color="\033[42m\033[97m"
-    ;;
-    coral| crl)
-        color="\033[48;5;3m\033[97m"
-    ;;
-    orange | org)
-        color="\033[48;5;202m\033[97m"
-    ;;
-    magenta | mag)
-        color="\033[45m\033[97m"
-    ;;
-    purple | pur)
-        color="\033[48;5;53m"
-    ;;
-    cyan | cyn)
-        color="\033[46m\033[97m"
-    ;;
-    *)
-        color="\033[45m\033[97m"
-    ;;
+        grey | gry)         color="\e[48;5;240m\e[97m"            ;;
+        charcoal | chr)     color="\e[48;5;237m\e[97m"            ;;
+        red)                color="\e[48;5;1m\e[97m"              ;;
+        green | grn)        color="\e[48;5;22m\e[97m"             ;;
+        lime | lim)         color="\e[48;5;40m\e[38;5;232m"       ;;
+        aquamarine | aqm)   color="\e[48;5;120m\e[38;5;232m"      ;;
+        olive | olv)        color="\e[48;5;58m\e[97m"             ;;
+        blue | blu)         color="\e[44m\e[97m"                  ;;
+        sky)                color="\e[48;5;25m\e[97m"             ;;
+        cyan | cyn)         color="\e[46m\e[97m"                  ;;
+        aqua | aqa)         color="\e[48;5;87m\e[38;5;232m"       ;;
+        goldenrod | gdr)    color="\e[48;5;220m\e[38;5;232m"      ;;
+        yellow | yel)       color="\e[48;5;11m\e[38;5;232m"       ;;
+        coral| crl)         color="\e[48;5;3m\e[97m"              ;;
+        orange | org)       color="\e[48;5;202m\e[97m"            ;;
+        pink | pnk)         color="\e[48;5;200m\e[97m"            ;;
+        lavender | lav)     color="\e[48;5;141m\e[38;5;232m"      ;;
+        magenta | mag)      color="\e[45m\e[97m"                  ;;
+        purple | pur)       color="\e[48;5;53m\e[97m"             ;;
+        *)                  color="\e[48;5;237m\e[97m"            ;;
     esac
+
     echo
-    echo -e "${color}${padl}${text}${padr}${reset}"
+    echo -e "${color}${padding}${hding}${padding}${padextra}\e[0m"
     echo
 }
 
+# DISPLAY WELCOME MESSAGE ------------------------------------------------------
 clear
-_heading green "ConkyMatic VERSION ${VERSION}"
+sheading green "ConkyMatic VERSION ${VERSION}"
 
-# DO THE VARIOUS DIRECTORIES SPECIFIED ABOVE EXIST?
+
+# DO THE VARIOUS DIRECTORIES SPECIFIED ABOVE EXIST? ----------------------------
 
 # Remove the trailing slash from the cache directory path
 if [[ ${CACHE_DIRECTORY} =~ .*/$ ]]; then
@@ -602,8 +609,8 @@ COLOR_DATA="${COLARRAY[${RND}]}"
 RND=$(shuf -i 8-16 -n 1)
 COLOR_TEXT="${COLARRAY[${RND}]}"
 
-
 # COPY SVG ICONS TO TMP/DIRECTORY  ------------------------------------------------------
+
 # We do this because we need to open each SVG and replace the color value. 
 # No reason to mess with the originals.
 
@@ -677,9 +684,12 @@ done
 # Delete the temporary directory.
 rm -R "${TEMPDIR}"
 
-
 # CACHE THE CURRENT WEATHER & FORECAST ICONS --------------------------------------------
-# These are the icons that get displayed in the conky.
+
+# These are the six icons that get displayed immediately in the Conky, which
+# reflect the current weather data. The Conky itself executes its own weather
+# routines every 5 mintues and caches its own images. We do it here so the icons
+# show up immeidately after relaunch.
 
 echo
 echo
@@ -703,12 +713,14 @@ cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE4}.png ${CACHE_DIRECTORY}/for
 cp -f ${WEATHER_ICONS_PNG_DIRECTORY}/${FORECASTCODE5}.png ${CACHE_DIRECTORY}/forecast5.png
 
 # REPLACE TEMPLATE VARIABLES ------------------------------------------------------------
+
 # Now it's time to insert the randomly gathered color values into the template
 
 echo
 echo " Inserting color values into the conky template"
 
-# Before replacing vars make a copy of the template
+# Before replacing vars make a copy of the template. This template will replace
+# .conkyrc once the variable swapping is done
 cp ${TEMPLATE_SELECTION} ${CACHE_DIRECTORY}/conkyrc
 
 # Colors
