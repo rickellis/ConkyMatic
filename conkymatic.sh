@@ -7,7 +7,7 @@
 #                     |__/ Automatic color generator
 #
 #-----------------------------------------------------------------------------------
-VERSION="1.0.4"
+VERSION="1.1.0"
 #-----------------------------------------------------------------------------------
 #
 #  ConkyMatic does the following:
@@ -28,17 +28,31 @@ VERSION="1.0.4"
 
 # USER CONFIGURATION VARIABLES
 
-# Your city for weather data
+# Your city
 YOUR_CITY="laramie"
 
-# Your state
-YOUR_STATE="wy"
+# Your state or country
+YOUR_REGION="wy"
 
-# URL to the Yahoo weather JSON file. 
-# If you entered your city and state above, the URL below should work by default.
-# Note: If you live outside of the U.S. you'll likely need to update the URL.
-# Go to: https://developer.yahoo.com/weather/
-WEATHER_API_URL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${YOUR_CITY}%2C%20${YOUR_STATE}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
+# Temperature format
+# f = farenheight
+# c = celcius
+TEMP_FORMAT="c"
+
+#-----------------------------------------------------------------------------------
+
+# ADDITONAL CONFIGURATION VARIABLES
+# You most likely will not need to change these
+
+# Format city/region/temp variables for URL safety
+TEMP_FORMAT=${TEMP_FORMAT,,}
+YOUR_CITY=${YOUR_CITY,,}
+YOUR_REGION=${YOUR_REGION,,}
+REGION_ENC=${YOUR_REGION// /%20}
+CITY_ENC=${YOUR_CITY// /%20}
+
+# URL to the Yahoo weather JSON file.
+WEATHER_API_URL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${YOUR_CITY}%2C%20${REGION_ENC}%22)%20and%20u%3D%22${TEMP_FORMAT}%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
 
 # Path to the current wallpaper.
 # If you are running a different desktop than XFCE you'll have to figure
@@ -359,7 +373,7 @@ echo " Here we go!"
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
 
 echo
-echo " Downloading Yahoo weather JSON data"
+echo " Downloading Yahoo weather JSON data for ${YOUR_CITY}, ${YOUR_REGION}"
 
 # Curl argumnets:
 #   -f = fail silently. Will issue error code 22
