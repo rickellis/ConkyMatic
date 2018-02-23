@@ -37,7 +37,7 @@ YOUR_REGION="wy"
 # Temperature format
 # f = farenheight
 # c = celcius
-TEMP_FORMAT="c"
+TEMP_FORMAT="f"
 
 #-----------------------------------------------------------------------------------
 
