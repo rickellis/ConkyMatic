@@ -3,15 +3,15 @@
 #
 # Default Conky Template for ConkyMatic
 #
-# Version 1.0.0
+# Version 1.1.0
 #
 # by Rick Ellis
-# https://github.com/rickellis
+# https://github.com/rickellis/conkymatic
 #
 # Font used: Roboto
 #
-# Conky documentation: http://conky.sourceforge.net/docs.html
-#
+# Conky documentation
+# http://conky.sourceforge.net/docs.html
 #
 # License: MIT
 #
@@ -251,6 +251,20 @@ ${voffset -5}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
+# CPU TEMP
+${color3} CPU ${alignr}${color}${color6}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
+#
+# CPU GRAPH
+${voffset 5}${alignc}${color6}${cpugraph 0 15,235 0 0 -l} \
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset -2}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
 # Used and free space on root, home, and swap
 ${voffset -2}${font Roboto:size=11:weight:bold}${color3} \
 ${fs_used} Used ${alignr}${color6}${fs_free} Free \
@@ -277,18 +291,6 @@ ${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
 #
 # HORIZONTAL RULE
 ${color7}${hr 2}
-#
-# -----------------------------------------------------------------------------------------
-#
-# CPU TEMPERATURE AND FAN SPEED
-${color3} CPU Temp ${alignr}${color6}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
-${color3} Fan Speed ${alignr}${color6}${freq_g} RPM \
-${font}${color}
-#
-# -----------------------------------------------------------------------------------------
-#
-# HORIZONTAL RULE
-${voffset -2}${color7}${hr 2}
 #
 # -----------------------------------------------------------------------------------------
 #
@@ -339,5 +341,6 @@ ${font}${color}
 # -----------------------------------------------------------------------------------------
 #
 # COLOR PALETTE IMAGE
-${voffset -26}${image _VAR:COLOR_PALETTE_FILEPATH_ -p 13,972}\
+# Note: Vertical offset controls the space UNDER the image.
+${voffset -25}${image _VAR:COLOR_PALETTE_FILEPATH_ -p 13,978}\
 ]]
