@@ -4,7 +4,7 @@
 
 ## ConkyMatic is a shell script that:
 
-* Automatically gets the path to your current wallpaper if you are running either XFCE or feh (or you can pass the path manually).
+* Automatically gets the path to your current wallpaper (or the path can be passed manually).
 
 * Creates a 16 color palette image from the current wallpaper (look at the bottom of the Conky in the screenshots)
 
@@ -17,6 +17,8 @@
 * Copies the new .conkyrc file to the home folder and relaunches the Conky application.
 
 The entire sequence takes the script about 10 seconds, making it very fast and easy to build a fresh conky every time you change your wallpaper. And since the colors are randomly selected, running the script multiple times with the same wallpaper will yield different results.
+
+__Note:__ The automatic path gathering feature only works if you use __XFCE desktop__, or if you use __feh__ to set your wallpaper. Read the [configuration](#configuration) section below for more info.
 
 ### [YouTube Video](https://youtu.be/th6-7pRe-l4)
 
