@@ -31,38 +31,34 @@ VERSION="1.2.0"
 # Your city
 YOUR_CITY="laramie"
 
-# Your state or country
+# Your US state (two letter abbreviation. Example: NY)
+# If you are NOT in the US enter your country. Example: france
 YOUR_REGION="wy"
 
 # Temperature format
-# f = farenheight
+# f = fahrenheit
 # c = celcius
 TEMP_FORMAT="f"
+
+# AUTOMATIC PATH MODE
+# Sets the way in which ConkyMatic should get the path to your wallpaper. The options are:
+#
+#   PATH_MODE="xfce"  # Use this if you run XFCE Desktop
+#   PATH_MODE="feh"   # Use this if you use feh to set your wallpaper
+# 
+# NOTE: You can also pass the wallpaper path manually as an argument to the script:
+#
+#   ./conkymatic.sh /path/to/your/wallpaper.jpg
+#
+# This setting will be ignored when a path is manually passed.
+# 
+AUTO_PATH_MODE="xfce"
 
 #-----------------------------------------------------------------------------------
 
 # ADDITONAL CONFIGURATION VARIABLES
-# You most likely will not need to change these
 
-# Format city/region/temp variables for URL safety
-TEMP_FORMAT=${TEMP_FORMAT,,}
-YOUR_CITY=${YOUR_CITY,,}
-YOUR_REGION=${YOUR_REGION,,}
-REGION_ENC=${YOUR_REGION// /%20}
-CITY_ENC=${YOUR_CITY// /%20}
-
-# URL to the Yahoo weather JSON file.
-WEATHER_API_URL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${YOUR_CITY}%2C%20${REGION_ENC}%22)%20and%20u%3D%22${TEMP_FORMAT}%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
-
-# Path to the current wallpaper
-# If you are running XFCE the path is set automatically so don't alter this variable.
-# If you are running a different desktop than XFCE you have two options:
-# 1. Figure out how to query your systeme to get the current wallpaper path.
-# 2. Manually pass the path to your wallpaper as an argument. Example:
-#
-#   $   ./conkymatic.sh /path/to/your/wallpaper.jpg
-#
-WALLPAPER_PATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/backdrop/screen0/monitor0/image-path)
+# Most likely you will NOT need to change any of these
 
 # Basepath to the directory containing the various assets.
 # Do not change this unless you need a different directory structure.
@@ -216,15 +212,85 @@ fi
 
 # SET WALLPAPER PATH --------------------------------------------------------------------
 
-# If the path to the wallpaper was passed we use it instead of
-# the query in the config variable near the top of the file
+MODE_MESSAGE=""
 
-if [ ! -z $1 ]; then 
-    if [ -f $1 ]; then
+# Set path using the XFCE query
+xfce_autopath() {
+    WALLPAPER_PATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/backdrop/screen0/monitor0/image-path)
+    MODE_MESSAGE="The XFCE query returned the path to your wallpaper"
 
-        LOWERCASE=${1,,}
+    if [ ! -f "$WALLPAPER_PATH" ]; then
+        echo ' The xfconf-query did not return a valid path to the wallpaper'
+        echo
+        echo ' Aborting...'
+        echo
+        exit 1
+    fi
+}
+
+# Set the path via the .fehbg config file
+feh_autopath() {
+
+    if [ ! -f "$HOME/.fehbg" ]; then
+        echo ' Unable to find the .fehbg config file'
+        echo
+        echo ' Aborting...'
+        echo
+        exit 1
+    fi
+
+    # Load the fehbg file contents into an array
+    readarray -t FEHDATA < $HOME/.fehbg
+    FEHPATH=${FEHDATA[1]}
+
+    # Delete everything until the first /
+    FEHPATH=$(echo $FEHPATH | sed 's/^[^/]*\///g')
+
+    # Delete everythinig after a single or double quote
+    FEHPATH=$(echo $FEHPATH | sed "s/[\'|\"].*//")
+
+    # Add the slash back
+    FEHPATH="/${FEHPATH}"
+
+    # Is the path valid?
+    if [ ! -f $FEHPATH ]; then
+        echo ' The path in .fehbg does not appear to be valid'
+        echo
+        echo ' Aborting...'
+        echo
+        exit 1
+    fi
+
+    WALLPAPER_PATH=$FEHPATH
+    MODE_MESSAGE="The feh config file contains a valid wallpaper path"
+}
+
+# Path mode error gets triggered if the config variable is set wrong.
+path_mode_error() {
+    echo ' AUTO_MODE is set incorrectly. Must be either "xfce" or "feh"'
+    echo
+    echo ' Aborting...'
+    echo
+    exit 1
+}
+
+
+# If the path to the wallpaper was passed we use it
+# instead of automatically gathering the path
+if [ ! -z "$1" ]; then
+
+    # If the path contains a space, which can happen if people use spaces in
+    # their folder names, then $1 will only contnain the path up until the space. 
+    # To deal with this we use the zero index of the full argument
+    arg=$@
+    path=${arg[0]}
+
+    if [ -f "$path" ]; then
+
+        LOWERCASE=${path,,}
         if [[ $LOWERCASE =~ jpg|jpeg|png$ ]]; then
-            WALLPAPER_PATH=$1
+            WALLPAPER_PATH=$path
+            MODE_MESSAGE="The path you submitted is valid"
         else
             echo ' The path you entered does not point to a valid image.'
             echo
@@ -239,22 +305,22 @@ if [ ! -z $1 ]; then
     else
         echo " The path you entered does not appear to be correct:"
         echo
-        echo " $1"
+        echo " $path"
         echo
         echo " Aborting..."
         echo
         exit 1
     fi
 else
-    # Validate the default variable near the top of the script
-    if [ ! -f $WALLPAPER_PATH ]; then
-        echo " Unable to get the path to your wallpapper."
-        echo
-        echo " Aborting..."
-        echo
-        exit 1
-    fi
-fi 
+
+    # Path was not passed as an argument, therefore we set the path automatically
+    AUTO_PATH_MODE=${AUTO_PATH_MODE,,}
+    case $AUTO_PATH_MODE in
+        xfce)   xfce_autopath   ;;
+        feh)    feh_autopath    ;;
+        *)      path_mode_error ;;
+    esac
+fi
 
 # CONSENT -------------------------------------------------------------------------------
 
@@ -333,6 +399,62 @@ fi
 
 echo
 echo " Here we go!"
+echo
+echo " Path Validation: ${MODE_MESSAGE}"
+
+# URL ENCODE THE YAHOO WEATHER QUERY AND ASSOCIATED DATA --------------------------------
+
+# Format city/region/temp variables for URL safety
+TEMP_FORMAT=${TEMP_FORMAT,,}
+YOUR_CITY=${YOUR_CITY,,}
+YOUR_REGION=${YOUR_REGION,,}
+REGION_ENC=${YOUR_REGION// /%20}
+CITY_ENC=${YOUR_CITY// /%20}
+
+# Do not alter
+YAHOO_BASE_URL='https://query.yahooapis.com/v1/public/yql?q='
+
+# Gets URL encoded below
+YAHOO_QUERY="select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"${YOUR_CITY}, ${REGION_ENC}\") and u=\"${TEMP_FORMAT}\""
+
+# Gets partially URL encoded below
+YAHOO_END_URL="&format=json&env=store://datatables.org/alltableswithkeys"
+
+# URL ENCODE THESE CHARACTERS
+# %20 = space
+# %3D = =
+# %22 = "
+# %2C = ,
+# %3A = :
+# %2F = /
+
+# Spaces become %20
+YAHOO_QUERY=${YAHOO_QUERY// /%20}
+YAHOO_END_URL=${YAHOO_END_URL// /%20}
+
+# , become %2C
+YAHOO_QUERY=${YAHOO_QUERY//,/%2C}
+YAHOO_END_URL=${YAHOO_END_URL//,/%2C}
+
+# : become %3A
+YAHOO_QUERY=${YAHOO_QUERY//:/%3A}
+YAHOO_END_URL=${YAHOO_END_URL//:/%3A}
+
+# / become %2F
+YAHOO_QUERY=${YAHOO_QUERY//\//%2F}
+YAHOO_END_URL=${YAHOO_END_URL//\//%2F}
+
+# " become %22
+YAHOO_QUERY=${YAHOO_QUERY//\"/%22}
+YAHOO_END_URL=${YAHOO_END_URL//\"/%22}
+
+# = become %3D
+YAHOO_QUERY=${YAHOO_QUERY//=/%3D}
+# DO NOT ENCODE YAHOO_END_URL
+
+# Assemble the weather api url
+WEATHER_API_URL="${YAHOO_BASE_URL}${YAHOO_QUERY}${YAHOO_END_URL}"
+
 
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
 
@@ -347,7 +469,6 @@ echo " Downloading Yahoo weather JSON data for ${YOUR_CITY}, ${YOUR_REGION}"
 CURLARGS="-f -s -S -k"
 
 # Execute the Curl command and cache the json file
-# $(curl ${CURLARGS} ${WEATHER_API_URL} -o ${CACHE_DIRECTORY}/${JSON_CACHE_FILE})
 CURL=$(curl ${CURLARGS} ${WEATHER_API_URL})
 echo "${CURL}" > ${CACHE_DIRECTORY}/${JSON_CACHE_FILE}
 
@@ -358,7 +479,7 @@ echo
 echo " Generating color palette based on the current wallpaper colors"
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
-convert ${WALLPAPER_PATH} \
+convert "${WALLPAPER_PATH}" \
 +dither \
 -colors 16 \
 -unique-colors \
