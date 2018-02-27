@@ -27,15 +27,26 @@ The entire sequence takes the script about 10 seconds, making it very fast and e
 
 * __Curl__ to download JSON weather data. You can install Curl using your preferred package manager.
 
-* __XFCE Desktop__. The script should work regardless of the desktop environment you use. However, you'll have to update the __WALLPAPER_PATH__ config variable near the top of the __conkymatic.sh__ script with a query that retrieves the wallpaper on your system.
-
 * __Roboto Font__. The default Conky template uses [Roboto](https://www.dafont.com/roboto.font).
 
-## Installation and Usage.
-Just clone the package, update the config variables at the top of __conkymatic.sh__, and run the script.
+
+
+
+## Installation
+Just clone the package and update the weather config variables at the top of __conkymatic.sh__.
+
+## Usage
+Point your terminal to the directory containing __cokymatic__ and run it using:
+
+    $   ./conkymatic.sh
+
+If you are running  __XFCE Desktop__ the script will automatically fetch the path to your current wallpaper.
+
+If you are __NOT__ running __XFCE Desktop__ you can manually pass the path to your wallpaper as an argument:
+
+    $   ./conkymatic.sh /path/to/your/wallpaper.jpg
 
 __Important:__ Before running ConkyMatic make a backup copy of your .conkyrc file since it will get overwritten. 
-
 
 ## Customization
 In the __Templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some pseudo-variables that get replaced by the script with random color values. A list of available variables can be found below.
@@ -48,7 +59,7 @@ __IMPORTANT:__ all templates must be named with the __.conky__ file extension: E
 To make running the script faster you can add the following alias to your __.bashrc__ file, and then just enter __conkymatic__ from your terminal.
 
     function conkymatic() {
-        $HOME/path/to/ConkyMatic/conkymatic.sh
+        $HOME/path/to/ConkyMatic/conkymatic.sh $@
     }
 
 __Note:__ Make sure you change the path in the function to reflect your particular path.
