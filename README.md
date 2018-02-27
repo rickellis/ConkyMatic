@@ -33,20 +33,48 @@ The entire sequence takes the script about 10 seconds, making it very fast and e
 
 
 ## Installation
-Just clone the package and update the weather config variables at the top of __conkymatic.sh__.
+Just clone or download the package.
+
+## Configuration
+If you open __conkymatic.sh__ with a text editor you'll see the following user configuration variables near the top of the file:
+
+    # Your city
+    YOUR_CITY="miami"
+
+    # Your US state (two letter abbreviation. Example: NY)
+    # If you are NOT in the US enter your country. Example: france
+    YOUR_REGION="fl"
+
+    # Temperature format
+    # f = fahrenheit
+    # c = celcius
+    TEMP_FORMAT="f"
+
+    # AUTOMATIC PATH MODE
+    # Sets the way in which ConkyMatic should get the path to your wallpaper. The options are:
+    #
+    #   PATH_MODE="xfce"  # Use this if you run XFCE Desktop
+    #   PATH_MODE="feh"   # Use this if you use feh to set your wallpaper
+    # 
+    # NOTE: You can also pass the wallpaper path manually as an argument to the script:
+    #
+    #   ./conkymatic.sh /path/to/your/wallpaper.jpg
+    #
+    # This setting will be ignored when a path is manually passed.
+    # 
+    AUTO_PATH_MODE="xfce"
+
 
 ## Usage
 Point your terminal to the directory containing __cokymatic__ and run it using:
 
     $   ./conkymatic.sh
 
-If you are running  __XFCE Desktop__ the script will automatically fetch the path to your current wallpaper.
-
-If you are __NOT__ running __XFCE Desktop__ you can manually pass the path to your wallpaper as an argument:
+You can also manually pass the path to your wallpaper as an argument:
 
     $   ./conkymatic.sh /path/to/your/wallpaper.jpg
 
-__Important:__ Before running ConkyMatic make a backup copy of your .conkyrc file since it will get overwritten. 
+__Important:__ Before running ConkyMatic make a backup copy of your .conkyrc file since it will get overwritten.
 
 ## Customization
 In the __Templates__ directory you'll find the __default.conky__ template. This is a normal .conkyrc file, except it contains some pseudo-variables that get replaced by the script with random color values. A list of available variables can be found below.
