@@ -7,7 +7,7 @@
 #                     |__/ Automatic color generator
 #
 #-----------------------------------------------------------------------------------
-VERSION="1.1.2"
+VERSION="1.2.0"
 #-----------------------------------------------------------------------------------
 #
 #  ConkyMatic does the following:
@@ -54,9 +54,14 @@ CITY_ENC=${YOUR_CITY// /%20}
 # URL to the Yahoo weather JSON file.
 WEATHER_API_URL="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22${YOUR_CITY}%2C%20${REGION_ENC}%22)%20and%20u%3D%22${TEMP_FORMAT}%22&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
 
-# Path to the current wallpaper.
-# If you are running a different desktop than XFCE you'll have to figure
-# out how to query your system to get the current wallpaper.
+# Path to the current wallpaper
+# If you are running XFCE the path is set automatically so don't alter this variable.
+# If you are running a different desktop than XFCE you have two options:
+# 1. Figure out how to query your systeme to get the current wallpaper path.
+# 2. Manually pass the path to your wallpaper as an argument. Example:
+#
+#   $   ./conkymatic.sh /path/to/your/wallpaper.jpg
+#
 WALLPAPER_PATH=$(xfconf-query -c xfce4-desktop -p $xfce_desktop_prop_prefix/backdrop/screen0/monitor0/image-path)
 
 # Basepath to the directory containing the various assets.
@@ -99,8 +104,8 @@ COLOR_PALETTE_WIDTH="224"
 
 # Load colors script to display pretty headings and colored text
 # This is an optional (but recommended) dependency
-if [ -f "${BASEPATH}/colors.sh" ]; then
-    . "${BASEPATH}/colors.sh"
+if [ -f $BASEPATH/colors.sh ]; then
+    . $BASEPATH/colors.sh
 else
     heading() {
         echo " ----------------------------------------------------------------------"
@@ -123,42 +128,42 @@ if [[ ${CACHE_DIRECTORY} =~ .*/$ ]]; then
 fi
 
 # Does the cache directory exist?
-if  ! [[ -d ${CACHE_DIRECTORY} ]]; then
+if  ! [ -d $CACHE_DIRECTORY ]; then
     echo " The cache directory path does not exist. Aborting..."
     echo
     exit 1
 fi
 
 # Remove the trailing slash from the template directory path
-if [[ ${TEMPLATE_DIRECTORY} =~ .*/$ ]]; then
+if [[ $TEMPLATE_DIRECTORY =~ .*/$ ]]; then
     TEMPLATE_DIRECTORY="${TEMPLATE_DIRECTORY:0:-1}"
 fi
 
 # Does the template directory exist?
-if  ! [[ -d ${TEMPLATE_DIRECTORY} ]]; then
+if  ! [ -d $TEMPLATE_DIRECTORY ]; then
     echo " The template directory path does not exist. Aborting..."
     echo
     exit 1
 fi
 
 # Remove the trailing slash from the SVG directory path
-if [[ ${WEATHER_ICONS_SVG_DIRECTORY} =~ .*/$ ]]; then
+if [[ $WEATHER_ICONS_SVG_DIRECTORY =~ .*/$ ]]; then
     WEATHER_ICONS_SVG_DIRECTORY="${WEATHER_ICONS_SVG_DIRECTORY:0:-1}"
 fi
 
 # Does the SVG directory exist?
-if  ! [[ -d ${WEATHER_ICONS_SVG_DIRECTORY} ]]; then
+if  ! [ -d $WEATHER_ICONS_SVG_DIRECTORY ]; then
     echo " The SVG directory path does not exist. Aborting..."
     exit 1
 fi
 
 # Remove the trailing slash from the PNG directory path
-if [[ ${WEATHER_ICONS_PNG_DIRECTORY} =~ .*/$ ]]; then
+if [[ $WEATHER_ICONS_PNG_DIRECTORY =~ .*/$ ]]; then
     WEATHER_ICONS_PNG_DIRECTORY="${WEATHER_ICONS_PNG_DIRECTORY:0:-1}"
 fi
 
 # Does the PNG directory exist?
-if  ! [[ -d ${WEATHER_ICONS_PNG_DIRECTORY} ]]; then
+if  ! [ -d $WEATHER_ICONS_PNG_DIRECTORY ]; then
     echo " The PNG directory path does not exist. Aborting..."
     echo
     exit 1
@@ -200,21 +205,63 @@ for file in ${TEMPLATE_DIRECTORY}/*.conky; do
 done
 
 # How many templates are in the directory?
-TMPLN="${#TMPL_ARRAY[@]}"
+TMPLN=${#TMPL_ARRAY[@]}
 
 # If template directory is empty admonish them harshly
-if [[ ${TMPLN} == 0 ]]; then
+if [ $TMPLN -eq 0 ]; then
     echo "There are no conky templates in the Templates directory. Aborting..."
     echo
     exit 1
 fi
+
+# SET WALLPAPER PATH --------------------------------------------------------------------
+
+# If the path to the wallpaper was passed we use it instead of
+# the query in the config variable near the top of the file
+
+if [ ! -z $1 ]; then 
+    if [ -f $1 ]; then
+
+        LOWERCASE=${1,,}
+        if [[ $LOWERCASE =~ jpg|jpeg|png$ ]]; then
+            WALLPAPER_PATH=$1
+        else
+            echo ' The path you entered does not point to a valid image.'
+            echo
+            echo ' Images must have one of the following file extensions:'
+            echo
+            echo ' .jpg .jpeg .png'
+            echo
+            echo ' Aborting...'
+            echo
+            exit 1
+        fi
+    else
+        echo " The path you entered does not appear to be correct:"
+        echo
+        echo " $1"
+        echo
+        echo " Aborting..."
+        echo
+        exit 1
+    fi
+else
+    # Validate the default variable near the top of the script
+    if [ ! -f $WALLPAPER_PATH ]; then
+        echo " Unable to get the path to your wallpapper."
+        echo
+        echo " Aborting..."
+        echo
+        exit 1
+    fi
+fi 
 
 # CONSENT -------------------------------------------------------------------------------
 
 read -p " Hit ENTER to begin, or any other key to abort: " CONSENT
 
 # Validate consent
-if ! [[ -z ${CONSENT} ]]; then
+if ! [ -z ${CONSENT} ]; then
     echo
     echo " Goodbye..."
     echo
@@ -224,7 +271,7 @@ fi
 # SELECT A TEMPLATE ---------------------------------------------------------------------
 
 # If there is only one template we auto-select it
-if [[ ${TMPLN} == 1 ]]; then
+if [ $TMPLN -eq 1 ]; then
         
     # Set the template
     TEMPLATE_SELECTION="${TMPL_ARRAY[0]}"
@@ -246,12 +293,12 @@ else  # Multiple templates in the Templates folder
     read CHOICE
 
     # If they hit enter we use default.conky
-    if [[ -z ${CHOICE} ]]; then
+    if [ -z $CHOICE ]; then
 
         TEMPLATE_SELECTION="${TEMPLATE_DIRECTORY}/default.conky"
 
         # Does the default exist?
-        if ! [ -e ${TEMPLATE_SELECTION} ]; then
+        if ! [ -e $TEMPLATE_SELECTION ]; then
             echo
             echo " Unable to find the default template"
             echo " The quick selection feature requires Templates/default.conky"
@@ -275,7 +322,7 @@ else  # Multiple templates in the Templates folder
         TEMPLATE_SELECTION="${TMPL_ARRAY[${CHOICE}]}"
 
         # Does the choice exist?
-        if ! [ -e ${TEMPLATE_SELECTION} ]; then
+        if ! [ -e $TEMPLATE_SELECTION ]; then
             echo
             echo " The choice you entered does not correlate to a template. Aborting..."
             echo " Aborting..."
@@ -554,7 +601,7 @@ cp -R "${WEATHER_ICONS_SVG_DIRECTORY}" "${TEMPDIR}"
 # REPLACE COLOR IN SVG FILES ------------------------------------------------------------
 
 # We now open each SVG file in the temp directory and replace the fill color
-for filepath in "${TEMPDIR}"/*.svg
+for filepath in $TEMPDIR/*.svg
     do
     # Match the pattern: fill="#hexval" and replace with the new color
     sed -i -e "s/fill=\"#[[:alnum:]]*\"/fill=\"${COLOR_ICON}\"/g" "$filepath"
@@ -570,7 +617,7 @@ echo
 # images into PNGs with the auto-selected color value.
 str="."
 i=1
-for filepath in "${TEMPDIR}"/*.svg
+for filepath in $TEMPDIR/*.svg
     do
 
     # Extract the filename from the path
@@ -580,7 +627,7 @@ for filepath in "${TEMPDIR}"/*.svg
     name="${filename%%.*}"
 
     # Convert to PNG using either Inkscape or ImageMagick
-    if [[ $converter == "Inkscape" ]]
+    if [ $converter == "Inkscape" ]
     then
         inkscape -z -e \
         "${WEATHER_ICONS_PNG_DIRECTORY}/${name}.png" \
@@ -613,7 +660,7 @@ for filepath in "${TEMPDIR}"/*.svg
 done
 
 # Delete the temporary directory.
-rm -R "${TEMPDIR}"
+rm -R $TEMPDIR
 
 # CACHE THE CURRENT WEATHER & FORECAST ICONS --------------------------------------------
 
@@ -652,7 +699,7 @@ echo " Inserting color values into the conky template"
 
 # Before replacing vars make a copy of the template. This template will replace
 # .conkyrc once the variable swapping is done
-cp ${TEMPLATE_SELECTION} ${CACHE_DIRECTORY}/conkyrc
+cp $TEMPLATE_SELECTION $CACHE_DIRECTORY/conkyrc
 
 # Colors
 sed -i -e "s|_VAR:COLOR_BACKGROUND_|${COLOR_BACKGROUND}|g" "${CACHE_DIRECTORY}/conkyrc"
@@ -696,7 +743,7 @@ echo
 echo " Exporting new .conkyrc file"
 
 # Copy conkyrc file to its proper location
-cp ${CACHE_DIRECTORY}/conkyrc ~/.conkyrc
+cp $CACHE_DIRECTORY/conkyrc ~/.conkyrc
 
 # Launch conky
 echo
@@ -704,7 +751,7 @@ echo " Relaunching Conky"
 conky 2>/dev/null
 
 # Remove the temporary template file
-rm ${CACHE_DIRECTORY}/conkyrc
+rm $CACHE_DIRECTORY/conkyrc
 
 echo
 echo " Done!"
