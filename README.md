@@ -23,9 +23,9 @@ The entire sequence takes the script about 10 seconds, making it very fast and e
 ## Requirements
 * A __Linux__ installation with __Conky__ installed.
 
-* __ImageMagick__ to generate the color palette PNG and weather icons. You can install ImageMagick using your preferred package manager. __Note:__ If you have __Inkscape__ is installed, ConkyMatic will use it for the weather icon rendering since it has better SVG handling. However, ImageMagick is still necessary for the palette generation.
+* __ImageMagick__ to generate the color palette PNG and weather icons. __Note:__ If you have __Inkscape__ is installed, ConkyMatic will use it for the weather icon rendering since it has better SVG handling. However, ImageMagick is still necessary for the palette generation.
 
-* __Curl__ to download JSON weather data. You can install Curl using your preferred package manager.
+* __Curl__ to download JSON weather data.
 
 * __Roboto Font__. The default Conky template uses [Roboto](https://www.dafont.com/roboto.font).
 
