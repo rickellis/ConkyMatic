@@ -6,7 +6,7 @@
 #  \__\___/_\___/_| /__/
 #
 #-----------------------------------------------------------------------------------
-VERSION="1.2.0"
+# VERSION="1.2.0"
 #-----------------------------------------------------------------------------------
 #
 # Headings and colored text for shell scripts
@@ -87,7 +87,8 @@ VERSION="1.2.0"
 #     magenta     mag
 #     purple      pur
 #
-# The above colors can be used to generate your own colored strings. For background colors just prefix "bg" to the color.
+# The above colors can be used to generate your own colored strings.
+# For background colors just prefix "bg" to the color.
 #
 #     echo -e "${bgred}${b}${wht}Red background with bold white text${r}"
 #
