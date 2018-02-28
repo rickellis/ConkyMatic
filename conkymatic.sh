@@ -63,7 +63,7 @@ AUTO_PATH_MODE="xfce"
 # Basepath to the directory containing the various assets.
 # Do not change this unless you need a different directory structure.
 # This allows the basepath to be correct if this script gets aliased in .bashrc
-BASEPATH=$(dirname -- $(readlink -fn -- "$0"))
+BASEPATH=$(dirname -- "$0")
 
 # Name of the JSON cache file
 JSON_CACHE_FILE="weather.json"
