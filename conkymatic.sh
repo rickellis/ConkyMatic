@@ -4,8 +4,8 @@
 #   / __|___ _ _ | |___  _|  \/  |__ _| |_(_)__ 
 #  | (__/ _ \ ' \| / / || | |\/| / _` |  _| / _|
 #   \___\___/_||_|_\_\\_, |_|  |_\__,_|\__|_\__|
-#                     |__/ Automatic color generator
-#
+#                     |__/ 
+#  Automatic Conky color generator
 #-----------------------------------------------------------------------------------
 VERSION="1.2.0"
 #-----------------------------------------------------------------------------------
@@ -54,6 +54,15 @@ TEMP_FORMAT="f"
 # 
 AUTO_PATH_MODE="xfce"
 
+# Size that the PNG icons should be converted to.
+# Note: In the .conkyrc file you can set the display size of each image.
+# Just make the size here larger than what you anticipate using.
+ICON_SIZE="64"
+
+# Desired width of color palette image. If you change the dimensions of
+# your conky template you might need to change this.
+COLOR_PALETTE_WIDTH="224"
+
 #-----------------------------------------------------------------------------------
 
 # ADDITONAL CONFIGURATION VARIABLES
@@ -63,7 +72,7 @@ AUTO_PATH_MODE="xfce"
 # Basepath to the directory containing the various assets.
 # Do not change this unless you need a different directory structure.
 # This allows the basepath to be correct if this script gets aliased in .bashrc
-BASEPATH=$(dirname -- "$0")
+BASEPATH=$(dirname "$0")
 
 # Name of the JSON cache file
 JSON_CACHE_FILE="weather.json"
@@ -80,17 +89,8 @@ WEATHER_ICONS_SVG_DIRECTORY="${BASEPATH}/Weather-Icons-SVG/Yahoo"
 # Full path to the PNG icon folder
 WEATHER_ICONS_PNG_DIRECTORY="${BASEPATH}/Weather-Icons-PNG"
 
-# Size that the PNG icons should be converted to.
-# Note: In the .conkyrc file you can set the display size of each image.
-# Just make the size here larger than what you anticipate using.
-ICON_SIZE="64"
-
 # Name of the color palette image
 COLOR_PALETTE_IMG="colorpalette.png"
-
-# Desired width of color palette image. If you change the dimensions of
-# your conky template you might need to change this.
-COLOR_PALETTE_WIDTH="224"
 
 #
 # END OF USER CONFIGURATION VARIABLES
@@ -183,9 +183,10 @@ fi
 
 # Is Inkscape installed? The SVG to PNG converter is better in Inkscape.
 # If it's installed we'll use it for that part of the process
-converter="ImageMagick"
 if [ "$(command -v inkscape)" >/dev/null 2>&1 ]; then
     converter="Inkscape"
+else
+    converter="ImageMagick"
 fi
 
 # TEMPLATE VALIDATION -------------------------------------------------------------------
@@ -203,7 +204,7 @@ done
 # How many templates are in the directory?
 TMPLN=${#TMPL_ARRAY[@]}
 
-# If template directory is empty admonish them harshly
+# If the template directory is empty admonish them harshly
 if [ $TMPLN -eq 0 ]; then
     echo "There are no conky templates in the Templates directory. Aborting..."
     echo
@@ -281,12 +282,11 @@ if [ ! -z "$1" ]; then
 
     # If the path contains a space, which can happen if people use spaces in
     # their folder names, then $1 will only contnain the path up until the space. 
-    # To deal with this we use the zero index of the full argument
+    # To deal with this we use the zero index for the full argument
     arg=$@
     path=${arg[0]}
 
     if [ -f "$path" ]; then
-
         LOWERCASE=${path,,}
         if [[ $LOWERCASE =~ jpg|jpeg|png$ ]]; then
             WALLPAPER_PATH=$path
@@ -458,8 +458,15 @@ WEATHER_API_URL="${YAHOO_BASE_URL}${YAHOO_QUERY}${YAHOO_END_URL}"
 
 # DOWNLOAD THE WEATHER JSON FILE --------------------------------------------------------
 
+# Capitalize the city/state into to make it look better in the terminal message
+CITY=${YOUR_CITY^}
+if [ ${#YOUR_REGION} == 2 ]; then
+    REGION=${YOUR_REGION^^}
+else
+    REGION=${YOUR_REGION^}
+fi
 echo
-echo " Downloading Yahoo weather JSON data for ${YOUR_CITY}, ${YOUR_REGION}"
+echo " Downloading Yahoo weather JSON data for ${CITY}, ${REGION}"
 
 # Curl argumnets:
 #   -f = fail silently. Will issue error code 22
@@ -476,7 +483,7 @@ echo "${CURL}" > ${CACHE_DIRECTORY}/${JSON_CACHE_FILE}
 # GENERATE COLOR PALETTE PNG ------------------------------------------------------------
 
 echo
-echo " Generating color palette based on the current wallpaper colors"
+echo " Generating color palette based on the wallpaper colors"
 
 # Use ImageMagick to create a color palette image based on the current wallpaper
 convert "${WALLPAPER_PATH}" \
@@ -488,13 +495,14 @@ convert "${WALLPAPER_PATH}" \
 ${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG}
 
 
-# GENERATE AUTOMATIC COLORS -------------------------------------------------------------
+# GENERATE MICRO COLOR PALETTE  ---------------------------------------------------------
+
+# We create a temporary micro version of the color palette PNG: 1px x 16px 
+# so we can gather the color value using x/y coordinates
 
 echo
 echo " Extracting hex color values from color palette image"
 
-# Create a micro version of the color palette PNG: 1px x 16px 
-# so we can gather the color value using x/y coordinates
 MICROIMG="${CACHE_DIRECTORY}/micropalette.png"
 
 convert ${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG} \
@@ -505,16 +513,14 @@ convert ${CACHE_DIRECTORY}/${COLOR_PALETTE_IMG} \
 -geometry 16 \
 ${MICROIMG}
 
-
 # EXTRACT COLOR VAlUES --------------------------------------------------------------
 
 # Although ImageMagick allows you to extract all the image colors in one action, 
 # the colors are sorted alphabetically, not from dark to light as they are when
 # the color palette image is created. I ended up having to extract each color value 
-# based on the x/y coordinates of the micropalette image. At some point I'd like to
-# revisit this code to see if I can find a more graceful way to accomplish this.
-# Also, some images have alpha tranparencies, so we end up with 9 character hex
-# values. We truncate all color values at 7.
+# based on the x/y coordinates of the micropalette image. Also, some images have
+# alpha tranparencies, so we end up with 9 character hex values. We truncate all 
+# color values at 7.
 
 COLOR1=$(convert ${MICROIMG} -crop '1x1+0+0' txt:-)
 # Remove newlines 
