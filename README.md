@@ -6,7 +6,7 @@
 
 Automatically generates a Conky and weather icons that are color-matched to the current wallpaper.
 
-## When you run ConkyMatic it does the following;
+### When you run ConkyMatic it does the following:
 
 * Automatically gets the path to your current wallpaper (or the path can be passed manually).
 
