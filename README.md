@@ -4,6 +4,10 @@
 
 ## ConkyMatic is a shell script that:
 
+Automatically generates a Conky and weather icons that are color-matched to the current wallpaper.
+
+## When you run ConkyMatic it does the following;
+
 * Automatically gets the path to your current wallpaper (or the path can be passed manually).
 
 * Creates a 16 color palette image from the current wallpaper (look at the bottom of the Conky in the screenshots)
