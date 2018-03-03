@@ -35,6 +35,8 @@ __Note:__ The automatic path gathering feature only works if you use __XFCE desk
 
 * __Curl__ to download JSON weather data.
 
+* __jq__ to parse JSON weather data.
+
 * __Roboto Font__. The default Conky template uses [Roboto](https://www.dafont.com/roboto.font).
 
 ## Installation
