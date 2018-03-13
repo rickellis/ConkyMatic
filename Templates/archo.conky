@@ -1,0 +1,342 @@
+--[[
+#----------------------------------------------------------------------------------------
+#
+# Default Conky Template for ConkyMatic
+#
+# Version 1.1.0
+#
+# by Rick Ellis
+# https://github.com/rickellis/conkymatic
+#
+# Font used: Roboto
+#
+# Conky documentation
+# http://conky.sourceforge.net/docs.html
+#
+# License: MIT
+#
+#----------------------------------------------------------------------------------------
+]]
+
+conky.config = {
+
+font = 'Roboto:size=11:bold',
+background = true,
+cpu_avg_samples = 2,
+diskio_avg_samples = 10,
+double_buffer = true,
+if_up_strictness = 'address',
+net_avg_samples = 2,
+no_buffers = true,
+temperature_unit = 'celsius',
+text_buffer_size = 2048,
+update_interval = 1,
+imlib_cache_size = 0,
+alignment = 'middle_right',
+gap_x = 50,
+gap_y = 0,
+minimum_height = 600,
+minimum_width = 240,
+maximum_width = 260,
+border_inner_margin = 10,
+border_outer_margin = 1,
+border_width = 1,
+default_bar_width = 250,
+default_bar_height = 10,
+default_gauge_height = 25,
+default_gauge_width = 40,
+default_graph_height = 40,
+default_graph_width = 153,
+default_shade_color = '#000000',
+default_outline_color = '#000000',
+draw_borders = true,
+draw_graph_borders = true,
+draw_shades = false,
+draw_outline = false,
+stippled_borders = 0,
+extra_newline = false,
+format_human_readable = true,
+max_text_width = 0,
+max_user_text = 16384,
+override_utf8_locale = true,
+short_units = true,
+top_name_width = 21,
+top_name_verbose = false,
+uppercase = false,
+use_spacer = 'none',
+use_xft = true,
+xftalpha = 1,
+own_window = true,
+own_window_argb_value =230,
+own_window_argb_visual = true,
+own_window_class = 'Conky',
+own_window_hints = 'undecorated,below,above,sticky,skip_taskbar,skip_pager',
+own_window_transparent = false,
+own_window_title = 'system_conky',
+own_window_type = 'normal',
+
+-- CONKYMATIC VARIABLES -------------------------------------------------------------
+
+color0 = '_VAR:COLOR_TIME_', -- Time
+color1 = '_VAR:COLOR_DATE_', -- Date
+color2 = '_VAR:COLOR_WEATHER_', -- Weather
+color3 = '_VAR:COLOR_HEADING_', -- Headings
+color4 = '_VAR:COLOR_SUBHEADING_', -- Sub-headings
+color5 = '_VAR:COLOR_TEXT_', -- Text (extra. Not used in default template)
+color6 = '_VAR:COLOR_DATA_', -- Data values
+color7 = '_VAR:COLOR_HR_', -- Horizontal rules
+color8 = '_VAR:COLOR_BARS_NORM_', -- Data bars, normal state
+color9 = '_VAR:COLOR_BARS_WARN_', -- Data bars, warning state
+default_color = '_VAR:COLOR_BORDER_', -- Window border
+own_window_colour = '_VAR:COLOR_BACKGROUND_', -- Window background color
+
+};
+
+conky.text = [[
+#
+# -----------------------------------------------------------------------------------------
+#
+# EXECUTE EXTERNAL SCRIPTS
+#
+# DOWNLOAD AND CACHE WEATHER DATA FROM YAHOO EVERY 5 MINUTES
+${execi 300 curl -f -s -S -k "_VAR:API_URL" -o _VAR:JSON_WEATHER_FILEPATH_}\
+#
+# COPY AND CACHE THE CURRENT WEATHER AND FORECAST ICONS
+${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.condition.code _VAR:JSON_WEATHER_FILEPATH_   | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/weather.png}\
+${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.forecast[1].code _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/forecast1.png}\
+${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.forecast[2].code _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/forecast2.png}\
+${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.forecast[3].code _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/forecast3.png}\
+${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.forecast[4].code _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/forecast4.png}\
+${execi 300 cp -f _VAR:WEATHER_ICONS_DIRECTORY_/$(jq .query.results.channel.item.forecast[5].code _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])').png _VAR:CACHE_DIRECTORY_/forecast5.png}\
+#
+# -----------------------------------------------------------------------------------------
+# 
+# CURRENT TIME
+${font Roboto:size=24}${color0}${alignc}${voffset -4}\
+${time %I:%M %p}\
+${font}${color}
+#
+# CURRENT DATE
+${font Roboto:size=13}${alignc}${voffset 2}${color1}\
+${time %B %d, %Y}\
+${font}${color}
+#
+# HORIZONTAL RULE
+${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# SUNRISE AND SUNSET
+${font Roboto:size=11:weight:bold}${color3}${alignc}\
+SUNRISE       SUNSET
+${color}\
+${voffset 1}${alignc}${color2} \
+# Use Awk to capitalize AM/PM
+${execi 300 jq -r .query.results.channel.astronomy.sunrise _VAR:JSON_WEATHER_FILEPATH_ | awk '{ print toupper($0) }'}      \
+${execi 300 jq -r .query.results.channel.astronomy.sunset  _VAR:JSON_WEATHER_FILEPATH_ | awk '{ print toupper($0) }'}\
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset -2}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# CURRENT TEMPERATURE
+${font Roboto:size=20}${color2}${voffset 0}${offset 55}\
+${execi 300 jq .query.results.channel.item.condition.temp _VAR:JSON_WEATHER_FILEPATH_ | grep -oP '"\K[^"\047]+(?=["\047])' #remove quotes}°\
+${font}${color}
+#
+# CURRENT WEATHER ICON
+# The icon gets pulled from from the cache file
+${image _VAR:CACHE_DIRECTORY_/weather.png -p 147,120 -s 56x56}
+#
+# HIGH AND LOW TEMPERATURE DATA 
+# Data gets pulled from the json file. We use awk to round the number
+${font Roboto:size=10:weight:bold}${color2}${voffset -18}${offset 45}\
+${execi 300 jq -r .query.results.channel.item.forecast[0].low _VAR:JSON_WEATHER_FILEPATH_  | awk '{print int($1+0.5)}' # round num}°  |  \
+${execi 300 jq -r .query.results.channel.item.forecast[0].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
+${font}${color}
+#
+# WEATHER DESCRIPTION
+# Data gets pulled from json file. We use awk to capitalize each word.
+${font Roboto:size=14}${alignc}${color2}${voffset 0}\
+${execi 300 jq -r .query.results.channel.item.condition.text _VAR:JSON_WEATHER_FILEPATH_ | sed -e "s/\b\(.\)/\u\1/g"}\
+${font}${color}
+#
+# CITY NAME
+# Data gets pulled from json file.
+${font Roboto:size=10:weight:bold}${alignc}${color2}${voffset 2}\
+${execi 300 jq -r .query.results.channel.location.city _VAR:JSON_WEATHER_FILEPATH_},\
+${execi 300 jq -r .query.results.channel.location.region _VAR:JSON_WEATHER_FILEPATH_}  \
+#
+#LONGITUDE AND LATITUDE
+# Round the longitude and latitude values up
+${execi 300 jq -r .query.results.channel.item.lat _VAR:JSON_WEATHER_FILEPATH_  | awk '{print int($1+0.5)}' # round num} N  \
+${execi 30 jq -r .query.results.channel.item.long _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num} W    \
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset 0}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# WEATHER FORECAST ICONS
+${image _VAR:CACHE_DIRECTORY_/forecast1.png -p 6,236 -s 35x35}\
+${image _VAR:CACHE_DIRECTORY_/forecast2.png -p 56,236 -s 35x35}\
+${image _VAR:CACHE_DIRECTORY_/forecast3.png -p 104,236 -s 35x35}\
+${image _VAR:CACHE_DIRECTORY_/forecast4.png -p 152,236 -s 35x35}\
+${image _VAR:CACHE_DIRECTORY_/forecast5.png -p 200,236 -s 35x35}\
+#
+# 5 DAY FORECAST TEMPERATURES
+# Data gets pulled from the forecast json file. We use awk to round the number
+${font SourceSansPro:size=11:weight:bold}${color2}\
+${voffset 33}\
+${goto 27}${execi  300 jq -r .query.results.channel.item.forecast[1].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
+${goto 76}${execi  300 jq -r .query.results.channel.item.forecast[2].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
+${goto 124}${execi 300 jq -r .query.results.channel.item.forecast[3].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
+${goto 172}${execi 300 jq -r .query.results.channel.item.forecast[4].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
+${goto 222}${execi 300 jq -r .query.results.channel.item.forecast[5].high _VAR:JSON_WEATHER_FILEPATH_ | awk '{print int($1+0.5)}' # round num}°\
+${font}${color}
+#
+# WEEKDAY NAMES
+${font SourceSansPro-:size=11:weight:bold}${color2}\
+${voffset -2}\
+${goto 25}${execi  300 jq -r  .query.results.channel.item.forecast[1].day _VAR:JSON_WEATHER_FILEPATH_ }\
+${goto 71}${execi  300 jq -r  .query.results.channel.item.forecast[2].day _VAR:JSON_WEATHER_FILEPATH_ }\
+${goto 122}${execi 300 jq -r  .query.results.channel.item.forecast[3].day _VAR:JSON_WEATHER_FILEPATH_ }\
+${goto 168}${execi 300 jq -r  .query.results.channel.item.forecast[4].day _VAR:JSON_WEATHER_FILEPATH_ }\
+${goto 217}${execi 300 jq -r  .query.results.channel.item.forecast[5].day _VAR:JSON_WEATHER_FILEPATH_ }\
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset -5}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# BATTERY STATUS BAR
+# Note: If the battery level drops below 20% it changes to red
+${font Roboto:size=11:weight:bold} \
+${if_match ${battery_percent} < 20}${color9}\
+${battery_bar 10,134 BAT0}    ${color3}BAT${alignr}${color9}${battery_percent}%\
+${else}${color8}\
+${battery_bar 10,134 BAT0}   ${color3}BAT  ${alignr}${color6}${battery_percent}%\
+${endif}\
+${font}
+#
+# CPU BAR
+# Note: If greater than 80% of the CPU is being used it turns red
+${font Roboto:size=11:weight:bold}${color8} \
+${cpubar cpu0 10,134}   \
+${color3}CPU${alignr}\
+${color6}${cpu cpu0}% \
+${font}
+#
+# RAM BAR
+${font Roboto:size=11:weight:bold}${color8} \
+${membar 10,134}   \
+${color3}RAM${alignr}${color6}\
+${memperc}% \
+${font}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset -5}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# CPU TEMP
+${color3} CPU ${alignr}${color}${color6}${execi 10 sensors | grep 'Core 0' | awk {'print $3'}} 
+#
+# CPU GRAPH
+${voffset 5}${alignc}${color6}${cpugraph 0 15,235 0 0 -l} \
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset -2}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# Used and free space on root and home
+${voffset -2}${font Roboto:size=11:weight:bold}\
+${color3}R: ${fs_used /root} Used ${alignr}${color6}${fs_free /root} Free
+${color3}H: ${fs_used /home} Used ${alignr}${color6}${fs_free /home} Free\
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset -2}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# UPTIME AND TOTAL NUMBER OF PROCESSES
+${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
+ Uptime ${alignr}${color6} $uptime_short ${color3}
+ Processes${alignr}${color6}${processes} 
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# CPU USAGE
+# Top 6 processes
+${voffset -2}${font Roboto:size=11:weight:bold}${color3}\
+ CPU${alignr}${color6}Intel i7 
+ ${color4}${top name 1}${alignr}${color6}${top cpu 1}% 
+ ${color4}${top name 2}${alignr}${color6}${top cpu 2}% 
+ ${color4}${top name 3}${alignr}${color6}${top cpu 3}% 
+ ${color4}${top name 4}${alignr}${color6}${top cpu 4}% 
+ ${color4}${top name 5}${alignr}${color6}${top cpu 5}% 
+ ${color4}${top name 6}${alignr}${color6}${top cpu 6}% \
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset -2}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# MEMORY USAGE
+# Top 6 applications
+${voffset -2}${font Roboto:size=11:weight:bold}\
+ ${color3}Memory${alignr}${color6}${memmax}  
+ ${color4}${top_mem name 1}${alignr}${alignr}${color6}${top_mem mem 1}% 
+ ${color4}${top_mem name 2}${alignr}${alignr}${color6}${top_mem mem 2}% 
+ ${color4}${top_mem name 3}${alignr}${alignr}${color6}${top_mem mem 3}% 
+ ${color4}${top_mem name 4}${alignr}${alignr}${color6}${top_mem mem 4}% 
+ ${color4}${top_mem name 5}${alignr}${alignr}${color6}${top_mem mem 5}% 
+ ${color4}${top_mem name 6}${alignr}${alignr}${color6}${top_mem mem 6}% 
+ ${color3}Total Used${alignr}${color6}${mem} \
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# HORIZONTAL RULE
+${voffset -2}${color7}${hr 2}
+#
+# -----------------------------------------------------------------------------------------
+#
+# PACKAGE UPDATES
+${font Roboto:size=11:weight:bold}${color3} \
+Package Updates${alignr}${color6}${execi 1800 checkupdates | wc -l} \
+${font}${color}
+#
+# -----------------------------------------------------------------------------------------
+#
+# COLOR PALETTE IMAGE
+# Note: Vertical offset controls the space UNDER the image.
+${voffset -25}${image _VAR:COLOR_PALETTE_FILEPATH_ -p 13,870}\
+]]
