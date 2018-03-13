@@ -7,7 +7,7 @@
 #                     |__/ 
 #  Automatic Conky color generator
 #-----------------------------------------------------------------------------------
-VERSION="1.2.0"
+VERSION="1.2.1"
 #-----------------------------------------------------------------------------------
 #
 #  ConkyMatic does the following:
@@ -355,8 +355,9 @@ else  # Multiple templates in the Templates folder
         echo " [${i}] $filename"
         ((i++))
     done
-
-    read CHOICE
+    
+    echo
+    read -p "  " CHOICE
 
     # If they hit enter we use default.conky
     if [ -z $CHOICE ]; then
